@@ -2,6 +2,7 @@
     "name": "phpactor/worse-reference-finders",
     "description": "Worse Reflection reference finder implementations",
     "license": "MIT",
+    "minimum-stability": "dev",
     "authors": [
         {
             "name": "Daniel Leech",
@@ -9,6 +10,8 @@
         }
     ],
     "require": {
+        "phpactor/worse-reflection": "~0.1",
+        "phpactor/reference-finder": "~0.1"
     },
     "require-dev": {
         "phpstan/phpstan": "^0.10.6",
