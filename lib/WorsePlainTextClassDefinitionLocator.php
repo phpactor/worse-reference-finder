@@ -38,7 +38,7 @@ class WorsePlainTextClassDefinitionLocator implements DefinitionLocator
         $this->reflector = $reflector;
         $this->breakingChars = $breakingChars ?: [
             ' ',
-            '"', '\'', '|', '%', '(', ')', '[', ']',':'
+            '"', '\'', '|', '%', '(', ')', '[', ']',':',"\r\n", "\n", "\r"
         ];
         $this->parser = new Parser();
     }
