@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\WorseReferenceFinder\Tests;
+namespace Phpactor\WorseReferenceFinder\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Phpactor\ReferenceFinder\DefinitionLocation;
