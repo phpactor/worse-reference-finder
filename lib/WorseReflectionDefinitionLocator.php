@@ -14,6 +14,7 @@ use Phpactor\WorseReflection\Core\Inference\SymbolContext;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionClass;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionInterface;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionTrait;
+use Phpactor\WorseReflection\Core\SourceCode;
 use Phpactor\WorseReflection\Reflector;
 
 class WorseReflectionDefinitionLocator implements DefinitionLocator
@@ -37,7 +38,16 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
             throw new CouldNotLocateDefinition('I only work with PHP files');
         }
 
-        $offset = $this->reflector->reflectOffset($document->__toString(), $byteOffset->toInt());
+        if ($uri = $document->uri()) {
+            $sourceCode = SourceCode::fromPathAndString($uri->__toString(), $document->__toString());
+        } else {
+            $sourceCode = SourceCode::fromString($document->__toString());
+        }
+
+        $offset = $this->reflector->reflectOffset(
+            $sourceCode,
+            $byteOffset->toInt()
+        );
 
         return $this->gotoDefinition($offset->symbolContext());
     }
@@ -128,7 +138,7 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
             throw new CouldNotLocateDefinition($e->getMessage());
         }
 
-        if ($symbolType === Symbol::PROPERTY && !$containingClass instanceof ReflectionInterface) {
+        if ($symbolType === Symbol::PROPERTY && $containingClass instanceof ReflectionInterface) {
             throw new CouldNotLocateDefinition(sprintf('Symbol is a property and class "%s" is an interface', (string) $containingClass->name()));
         }
 
