@@ -10,6 +10,7 @@ use Phpactor\TestUtils\ExtractOffset;
 use Phpactor\TestUtils\Workspace;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocumentBuilder;
+use Phpactor\WorseReferenceFinder\Tests\WorseTestCase;
 use Phpactor\WorseReferenceFinder\WorseMemberDefinitionLocator;
 use Phpactor\WorseReflection\Core\SourceCodeLocator\StubSourceLocator;
 use Phpactor\WorseReflection\ReflectorBuilder;
@@ -159,14 +160,6 @@ EOT
 
     protected function locator(): DefinitionLocator
     {
-        $reflector = ReflectorBuilder::create()
-            ->addLocator(new StubSourceLocator(
-                ReflectorBuilder::create()->build(),
-                $this->workspace->path(''),
-                $this->workspace->path('cache')
-            ))
-            ->build();
-
-        return new WorseMemberDefinitionLocator($reflector);
+        return new WorseMemberDefinitionLocator($this->reflector());
     }
 }

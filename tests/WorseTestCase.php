@@ -9,6 +9,9 @@ use Phpactor\TestUtils\ExtractOffset;
 use Phpactor\TestUtils\Workspace;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocumentBuilder;
+use Phpactor\WorseReflection\Core\SourceCodeLocator\StubSourceLocator;
+use Phpactor\WorseReflection\Reflector;
+use Phpactor\WorseReflection\ReflectorBuilder;
 
 abstract class WorseTestCase extends TestCase
 {
@@ -35,4 +38,16 @@ abstract class WorseTestCase extends TestCase
     }
 
     protected abstract function locator(): DefinitionLocator;
+
+    protected function reflector(): Reflector
+    {
+        return ReflectorBuilder::create()
+            ->addLocator(new StubSourceLocator(
+                ReflectorBuilder::create()->build(),
+                $this->workspace->path(''),
+                $this->workspace->path('cache')
+            ))
+            ->build();
+
+    }
 }
