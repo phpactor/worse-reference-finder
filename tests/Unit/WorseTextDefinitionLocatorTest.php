@@ -39,6 +39,27 @@ EOT
         yield 'xml attribute' => [ '<element class="Foob<>ar">', 'Foobar.php' ];
         yield 'array access' => [ '[Foob<>ar::class]', 'Foobar.php' ];
         yield 'solid block of text' => [ 'Foob<>ar', 'Foobar.php' ];
+        yield 'imported class 1' => [ <<<'EOT'
+<?php 
+namespace Bar {
+
+use Barfoo\Barfoo;
+
+    class Ha {
+    /** @var Ba<>rfoo */
+    private $hello;
+    }
+}
+EOT
+        , 'Barfoo.php' ];
+        yield 'imported class 2' => [ <<<'EOT'
+<?php 
+
+use Barfoo\Barfoo;
+
+/** @var Ba<>rfoo */
+EOT
+        , 'Barfoo.php' ];
     }
 
     protected function locator(): DefinitionLocator

@@ -2,6 +2,10 @@
 
 namespace Phpactor\WorseReferenceFinder;
 
+use Exception;
+use Microsoft\PhpParser\Node;
+use Microsoft\PhpParser\Node\SourceFileNode;
+use Microsoft\PhpParser\Parser;
 use Phpactor\ReferenceFinder\DefinitionLocation;
 use Phpactor\ReferenceFinder\DefinitionLocator;
 use Phpactor\ReferenceFinder\Exception\CouldNotLocateDefinition;
@@ -23,6 +27,11 @@ class WorsePlainTextClassDefinitionLocator implements DefinitionLocator
      */
     private $breakingChars;
 
+    /**
+     * @var Parser
+     */
+    private $parser;
+
     public function __construct(Reflector $reflector, array $breakingChars = [])
     {
         $this->reflector = $reflector;
@@ -30,6 +39,7 @@ class WorsePlainTextClassDefinitionLocator implements DefinitionLocator
             ' ',
             '"', '\'', '|', '%', '(', ')', '[', ']',':'
         ];
+        $this->parser = new Parser();
     }
 
     /**
@@ -38,6 +48,7 @@ class WorsePlainTextClassDefinitionLocator implements DefinitionLocator
     public function locateDefinition(TextDocument $document, ByteOffset $byteOffset): DefinitionLocation
     {
         $word = $this->extractWord($document, $byteOffset);
+        $word = $this->resolveClassName($document, $byteOffset, $word);
 
         try {
             $reflectionClass = $this->reflector->reflectClassLike($word);
@@ -92,5 +103,51 @@ class WorsePlainTextClassDefinitionLocator implements DefinitionLocator
         }
 
         return !in_array($char, $this->breakingChars);
+    }
+
+    private function resolveClassName(TextDocument $document, ByteOffset $byteOffset, string $word): string
+    {
+        if (!$document->language()->isPhp()) {
+            return $word;
+        }
+
+        $node = $this->parser->parseSourceFile(
+            $document->__toString()
+        )->getDescendantNodeAtPosition($byteOffset->toInt());
+
+        $imports = $this->resolveImportTable($node);
+
+        if (isset($imports[0][$word])) {
+            return $imports[0][$word]->__toString();
+        }
+
+        return $word;
+    }
+
+    /** 
+     * Tolerant parser will resolve a docblock comment as the root node, not
+     * the node to which the comment belongs. Here we attempt to get the import
+     * table from the current node, if that fails then we just do whatever we
+     * can to get an import table.
+     */
+    private function resolveImportTable(Node $node): array
+    {
+        try {
+            return $node->getImportTablesForCurrentScope();
+        } catch (Exception $e) {
+        }
+
+        foreach ($node->getDescendantNodes() as $node) {
+            try {
+                $imports = $node->getImportTablesForCurrentScope();
+                if (empty($imports[0])) {
+                    continue;
+                }
+                return $imports;
+            } catch (Exception $e) {
+            }
+        }
+
+        return [ [], [], [] ];
     }
 }
