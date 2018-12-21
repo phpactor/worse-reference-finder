@@ -2,20 +2,15 @@
 
 namespace Phpactor\WorseReferenceFinder\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
-use Phpactor\ReferenceFinder\DefinitionLocation;
 use Phpactor\ReferenceFinder\DefinitionLocator;
 use Phpactor\ReferenceFinder\Exception\CouldNotLocateDefinition;
 use Phpactor\TestUtils\ExtractOffset;
-use Phpactor\TestUtils\Workspace;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocumentBuilder;
 use Phpactor\WorseReferenceFinder\Tests\WorseTestCase;
-use Phpactor\WorseReferenceFinder\WorseMemberDefinitionLocator;
-use Phpactor\WorseReflection\Core\SourceCodeLocator\StubSourceLocator;
-use Phpactor\WorseReflection\ReflectorBuilder;
+use Phpactor\WorseReferenceFinder\WorseReflectionDefinitionLocator;
 
-class WorseMemberDefinitionLocatorTest extends WorseTestCase
+class WorseReflectionDefinitionLocatorTest extends WorseTestCase
 {
     const EXAMPLE_SOURCE = 'foobar';
     const EXAMPLE_OFFSET = 1234;
@@ -160,6 +155,6 @@ EOT
 
     protected function locator(): DefinitionLocator
     {
-        return new WorseMemberDefinitionLocator($this->reflector());
+        return new WorseReflectionDefinitionLocator($this->reflector());
     }
 }

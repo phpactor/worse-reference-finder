@@ -37,7 +37,7 @@ abstract class WorseTestCase extends TestCase
         );
     }
 
-    protected abstract function locator(): DefinitionLocator;
+    abstract protected function locator(): DefinitionLocator;
 
     protected function reflector(): Reflector
     {
@@ -48,6 +48,5 @@ abstract class WorseTestCase extends TestCase
                 $this->workspace->path('cache')
             ))
             ->build();
-
     }
 }

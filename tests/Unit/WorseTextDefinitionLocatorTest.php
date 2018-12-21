@@ -2,11 +2,10 @@
 
 namespace Phpactor\WorseReferenceFinder\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
 use Phpactor\ReferenceFinder\DefinitionLocator;
 use Phpactor\ReferenceFinder\Exception\CouldNotLocateDefinition;
 use Phpactor\WorseReferenceFinder\Tests\WorseTestCase;
-use Phpactor\WorseReferenceFinder\WorseTextDefinitionLocator;
+use Phpactor\WorseReferenceFinder\WorsePlainTextClassDefinitionLocator;
 
 class WorseTextDefinitionLocatorTest extends WorseTestCase
 {
@@ -44,6 +43,6 @@ EOT
 
     protected function locator(): DefinitionLocator
     {
-        return new WorseTextDefinitionLocator($this->reflector());
+        return new WorsePlainTextClassDefinitionLocator($this->reflector());
     }
 }

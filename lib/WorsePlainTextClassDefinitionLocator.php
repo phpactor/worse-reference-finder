@@ -11,7 +11,7 @@ use Phpactor\TextDocument\TextDocumentUri;
 use Phpactor\WorseReflection\Core\Exception\NotFound;
 use Phpactor\WorseReflection\Reflector;
 
-class WorseTextDefinitionLocator implements DefinitionLocator
+class WorsePlainTextClassDefinitionLocator implements DefinitionLocator
 {
     /**
      * @var Reflector
