@@ -8,10 +8,12 @@ use Phpactor\ReferenceFinder\Exception\CouldNotLocateDefinition;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocument;
 use Phpactor\TextDocument\TextDocumentUri;
-use Phpactor\WorseReflection\Core\ClassName;
 use Phpactor\WorseReflection\Core\Exception\NotFound;
 use Phpactor\WorseReflection\Core\Inference\Symbol;
 use Phpactor\WorseReflection\Core\Inference\SymbolContext;
+use Phpactor\WorseReflection\Core\Reflection\ReflectionClass;
+use Phpactor\WorseReflection\Core\Reflection\ReflectionInterface;
+use Phpactor\WorseReflection\Core\Reflection\ReflectionTrait;
 use Phpactor\WorseReflection\Reflector;
 
 class WorseReflectionDefinitionLocator implements DefinitionLocator
@@ -65,10 +67,10 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
 
         try {
             $class = $this->reflector->reflectClassLike(
-                ClassName::fromString((string) $className)
+                (string) $className
             );
         } catch (NotFound $e) {
-            throw new CouldNotLocateDefinition($e->getMessage(), null, $e);
+            throw new CouldNotLocateDefinition($e->getMessage(), 0, $e);
         }
 
         $path = $class->sourceCode()->path();
@@ -93,13 +95,13 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
         try {
             $function = $this->reflector->reflectFunction($functionName);
         } catch (NotFound $e) {
-            throw new GotoDefinitionException($e->getMessage(), null, $e);
+            throw new CouldNotLocateDefinition($e->getMessage(), 0, $e);
         }
 
         $path = $function->sourceCode()->path();
 
         if (null === $path) {
-            throw new GotoDefinitionException(sprintf(
+            throw new CouldNotLocateDefinition(sprintf(
                 'The source code for function "%s" has no path associated with it.',
                 $function->name()
             ));
@@ -121,12 +123,12 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
         }
 
         try {
-            $containingClass = $this->reflector->reflectClassLike(ClassName::fromString((string) $symbolContext->containerType()));
+            $containingClass = $this->reflector->reflectClassLike((string) $symbolContext->containerType());
         } catch (NotFound $e) {
             throw new CouldNotLocateDefinition($e->getMessage());
         }
 
-        if ($symbolType === Symbol::PROPERTY && $containingClass->isInterface()) {
+        if ($symbolType === Symbol::PROPERTY && !$containingClass instanceof ReflectionInterface) {
             throw new CouldNotLocateDefinition(sprintf('Symbol is a property and class "%s" is an interface', (string) $containingClass->name()));
         }
 
@@ -144,11 +146,18 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
                 $members = $containingClass->methods();
                 break;
             case Symbol::CONSTANT:
+                assert($containingClass instanceof ReflectionClass || $containingClass instanceof ReflectionInterface);
                 $members = $containingClass->constants();
                 break;
             case Symbol::PROPERTY:
+                assert($containingClass instanceof ReflectionClass || $containingClass instanceof ReflectionTrait);
                 $members = $containingClass->properties();
                 break;
+            default:
+                throw new CouldNotLocateDefinition(sprintf(
+                    'Unhandled symbol type "%s"',
+                    $symbolType
+                ));
         }
 
         if (false === $members->has($symbolName)) {
