@@ -74,17 +74,17 @@ class WorseDefinitionLocatorTest extends TestCase
 
     public function testExceptionWhenContainingClassNotFound()
     {
-        $this->markTestSkipped();
+        $this->markTestSkipped('Cannot reproduce');
     }
 
     public function testExceptionWhrenClassNoPath()
     {
-        $this->markTestSkipped();
+        $this->markTestSkipped('Cannot reproduce');
     }
 
     public function testExceptionWhenFunctionHasNoSourceCode()
     {
-        $this->markTestSkipped();
+        $this->markTestSkipped('Cannot reproduce');
     }
 
     public function testLocatesFunction()
@@ -132,18 +132,40 @@ EOT
 
     public function testLocatesConstant()
     {
+        $location = $this->locate(<<<'EOT'
+// File: Foobar.php
+<?php class Foobar { const FOOBAR = 'baz'; }
+EOT
+        , '<?php Foobar::FOO<>BAR;');
+
+        $this->assertEquals($this->workspace->path('Foobar.php'), (string) $location->uri());
+        $this->assertEquals(21, $location->offset()->toInt());
     }
 
     public function testLocatesProperty()
     {
+        $location = $this->locate(<<<'EOT'
+// File: Foobar.php
+<?php class Foobar { public $foobar; }
+EOT
+        , '<?php $foo = new Foobar(); $foo->foo<>bar;');
+
+        $this->assertEquals($this->workspace->path('Foobar.php'), (string) $location->uri());
+        $this->assertEquals(21, $location->offset()->toInt());
     }
 
     public function testExceptionIfPropertyIsInterface()
     {
-    }
+        $this->expectException(CouldNotLocateDefinition::class);
+        $this->expectExceptionMessage('is an interface');
+        $location = $this->locate(<<<'EOT'
+// File: Foobar.php
+<?php interface Foobar { public $foobar; }
+EOT
+        , '<?php $foo = new Foobar(); $foo->foo<>bar;');
 
-    private function assertGotoDefinition($symbolType)
-    {
+        $this->assertEquals($this->workspace->path('Foobar.php'), (string) $location->uri());
+        $this->assertEquals(21, $location->offset()->toInt());
     }
 
     private function locate(string $manifset, string $source): DefinitionLocation
@@ -156,7 +178,7 @@ EOT
         );
     }
 
-    private function locator(string $manifest): WorseDefinitionLocator
+    private function locator(string $manifest = ''): WorseDefinitionLocator
     {
         $this->workspace->loadManifest($manifest);
 
