@@ -117,7 +117,7 @@ class WorseDefinitionLocator implements DefinitionLocator
         $symbolType = $symbolContext->symbol()->symbolType();
 
         if (null === $symbolContext->containerType()) {
-            throw new GotoDefinitionException(sprintf('Containing class for member "%s" could not be determined', $symbolName));
+            throw new CouldNotLocateDefinition(sprintf('Containing class for member "%s" could not be determined', $symbolName));
         }
 
         try {
