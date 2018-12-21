@@ -4,6 +4,7 @@ namespace Phpactor\WorseReferenceFinder\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Phpactor\ReferenceFinder\DefinitionLocation;
+use Phpactor\ReferenceFinder\DefinitionLocator;
 use Phpactor\ReferenceFinder\Exception\CouldNotLocateDefinition;
 use Phpactor\TestUtils\ExtractOffset;
 use Phpactor\TestUtils\Workspace;
@@ -13,26 +14,15 @@ use Phpactor\WorseReferenceFinder\WorseMemberDefinitionLocator;
 use Phpactor\WorseReflection\Core\SourceCodeLocator\StubSourceLocator;
 use Phpactor\WorseReflection\ReflectorBuilder;
 
-class WorseMemberDefinitionLocatorTest extends TestCase
+class WorseMemberDefinitionLocatorTest extends WorseTestCase
 {
     const EXAMPLE_SOURCE = 'foobar';
     const EXAMPLE_OFFSET = 1234;
 
     /**
-     * @var WorseDefinitionLocator
+     * @var WorseMemberDefinitionLocator
      */
     private $locator;
-
-    /**
-     * @var Workspace
-     */
-    private $workspace;
-
-    public function setUp()
-    {
-        $this->workspace = Workspace::create(__DIR__ . '/Workspace');
-        $this->workspace->reset();
-    }
 
     public function testExceptionOnNonPhpFile()
     {
@@ -167,20 +157,8 @@ EOT
         $this->assertEquals(21, $location->offset()->toInt());
     }
 
-    private function locate(string $manifset, string $source): DefinitionLocation
+    protected function locator(): DefinitionLocator
     {
-        [$source, $offset] = ExtractOffset::fromSource($source);
-
-        return $this->locator($manifset)->locateDefinition(
-            TextDocumentBuilder::create($source)->language('php')->build(),
-            ByteOffset::fromInt($offset)
-        );
-    }
-
-    private function locator(string $manifest = ''): WorseMemberDefinitionLocator
-    {
-        $this->workspace->loadManifest($manifest);
-
         $reflector = ReflectorBuilder::create()
             ->addLocator(new StubSourceLocator(
                 ReflectorBuilder::create()->build(),
