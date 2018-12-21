@@ -93,7 +93,7 @@ class WorsePlainTextClassDefinitionLocator implements DefinitionLocator
             $char = $text[++$offset] ?? null;
         };
 
-        return implode('', $chars);
+        return trim(implode('', $chars));
     }
 
     private function charIsNotBreaking(?string $char)
