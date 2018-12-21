@@ -9,11 +9,11 @@ use Phpactor\TestUtils\ExtractOffset;
 use Phpactor\TestUtils\Workspace;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocumentBuilder;
-use Phpactor\WorseReferenceFinder\WorseDefinitionLocator;
+use Phpactor\WorseReferenceFinder\WorseMemberDefinitionLocator;
 use Phpactor\WorseReflection\Core\SourceCodeLocator\StubSourceLocator;
 use Phpactor\WorseReflection\ReflectorBuilder;
 
-class WorseDefinitionLocatorTest extends TestCase
+class WorseMemberDefinitionLocatorTest extends TestCase
 {
     const EXAMPLE_SOURCE = 'foobar';
     const EXAMPLE_OFFSET = 1234;
@@ -177,7 +177,7 @@ EOT
         );
     }
 
-    private function locator(string $manifest = ''): WorseDefinitionLocator
+    private function locator(string $manifest = ''): WorseMemberDefinitionLocator
     {
         $this->workspace->loadManifest($manifest);
 
@@ -189,6 +189,6 @@ EOT
             ))
             ->build();
 
-        return new WorseDefinitionLocator($reflector);
+        return new WorseMemberDefinitionLocator($reflector);
     }
 }

@@ -14,7 +14,7 @@ use Phpactor\WorseReflection\Core\Inference\Symbol;
 use Phpactor\WorseReflection\Core\Inference\SymbolContext;
 use Phpactor\WorseReflection\Reflector;
 
-class WorseDefinitionLocator implements DefinitionLocator
+class WorseMemberDefinitionLocator implements DefinitionLocator
 {
     /**
      * @var Reflector
