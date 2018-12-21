@@ -4,6 +4,7 @@ namespace Phpactor\WorseReferenceFinder;
 
 use Exception;
 use Microsoft\PhpParser\Node;
+use Microsoft\PhpParser\Node\QualifiedName;
 use Microsoft\PhpParser\Node\SourceFileNode;
 use Microsoft\PhpParser\Parser;
 use Phpactor\ReferenceFinder\DefinitionLocation;
@@ -121,6 +122,13 @@ class WorsePlainTextClassDefinitionLocator implements DefinitionLocator
             return $imports[0][$word]->__toString();
         }
 
+        if ($word[0] !== '\\') {
+            $namespace = $this->resolveNamespace($node);
+            if ($namespace) {
+                return $namespace .'\\'.$word;
+            }
+        }
+
         return $word;
     }
 
@@ -149,5 +157,40 @@ class WorsePlainTextClassDefinitionLocator implements DefinitionLocator
         }
 
         return [ [], [], [] ];
+    }
+
+    /**
+     * As with resolve import table, we try our best.
+     */
+    private function resolveNamespace(Node $node)
+    {
+        try {
+            return $this->namespaceFromNode($node);
+        } catch (Exception $e) {
+        }
+
+        foreach ($node->getDescendantNodes() as $node) {
+            try {
+                return $this->namespaceFromNode($node);
+            } catch (Exception $e) {
+            }
+        }
+
+        return '';
+    }
+
+    private function namespaceFromNode(Node $node): string
+    {
+        if (null === $node->getNamespaceDefinition() ) {
+            throw new Exception('Locate something with a namespace instead');
+        }
+
+        $name = $node->getNamespaceDefinition()->name;
+
+        if (null === $name) {
+            return '';
+        }
+        
+        return $name->__toString();
     }
 }

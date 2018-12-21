@@ -60,6 +60,14 @@ use Barfoo\Barfoo;
 /** @var Ba<>rfoo */
 EOT
         , 'Barfoo.php' ];
+        yield 'relative class' => [ <<<'EOT'
+<?php 
+
+namespace Barfoo;
+
+/** @var Ba<>rfoo */
+EOT
+        , 'Barfoo.php' ];
     }
 
     protected function locator(): DefinitionLocator
