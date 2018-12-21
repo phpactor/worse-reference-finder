@@ -8,7 +8,6 @@ use Phpactor\ReferenceFinder\Exception\CouldNotLocateDefinition;
 use Phpactor\TestUtils\ExtractOffset;
 use Phpactor\TestUtils\Workspace;
 use Phpactor\TextDocument\ByteOffset;
-use Phpactor\TextDocument\TextDocument;
 use Phpactor\TextDocument\TextDocumentBuilder;
 use Phpactor\WorseReferenceFinder\WorseDefinitionLocator;
 use Phpactor\WorseReflection\Core\SourceCodeLocator\StubSourceLocator;

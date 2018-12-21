@@ -2,4 +2,4 @@
 /tests/Workspace
 /phpbench.json
 /composer.lock
-/.php_cs.dist
+/.php_cs.cache
