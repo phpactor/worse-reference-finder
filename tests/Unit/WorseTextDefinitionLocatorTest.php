@@ -4,10 +4,10 @@ namespace Phpactor\WorseReferenceFinder\Tests\Unit;
 
 use Phpactor\ReferenceFinder\DefinitionLocator;
 use Phpactor\ReferenceFinder\Exception\CouldNotLocateDefinition;
-use Phpactor\WorseReferenceFinder\Tests\WorseTestCase;
+use Phpactor\WorseReferenceFinder\Tests\DefinitionLocatorTestCase;
 use Phpactor\WorseReferenceFinder\WorsePlainTextClassDefinitionLocator;
 
-class WorseTextDefinitionLocatorTest extends WorseTestCase
+class WorseTextDefinitionLocatorTest extends DefinitionLocatorTestCase
 {
     /**
      * @dataProvider provideGotoWord
@@ -21,7 +21,8 @@ class WorseTextDefinitionLocatorTest extends WorseTestCase
 <?php namespace Barfoo { class Barfoo {} }
 EOT
         , $text);
-        $this->assertEquals($this->workspace->path($expectedPath), (string) $location->uri());
+
+        $this->assertEquals($this->workspace->path($expectedPath), $location->uri()->path());
     }
 
     public function testExceptionIfCannotFindClass()
