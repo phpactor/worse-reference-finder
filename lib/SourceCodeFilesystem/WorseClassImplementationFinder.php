@@ -15,6 +15,7 @@ use Phpactor\WorseReflection\Core\ClassName;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Reflector\SourceCodeReflector;
 use Phpactor\WorseReflection\Reflector;
+use RuntimeException;
 use SplFileInfo;
 
 class WorseClassImplementationFinder implements ClassImplementationFinder
@@ -53,7 +54,13 @@ class WorseClassImplementationFinder implements ClassImplementationFinder
                 return false;
             }
 
-            $contents = @file_get_contents($path);
+            $contents = file_get_contents($path);
+
+            if (false === $contents) {
+                throw new RuntimeException(sprintf(
+                    'Could not get file contents for "%s"', $path
+                ));
+            }
 
             if (preg_match('{abstract class}', $contents)) {
                 return false;
