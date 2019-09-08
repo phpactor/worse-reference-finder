@@ -7,10 +7,10 @@ use Phpactor\ReferenceFinder\Exception\CouldNotLocateDefinition;
 use Phpactor\TestUtils\ExtractOffset;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocumentBuilder;
-use Phpactor\WorseReferenceFinder\Tests\WorseTestCase;
+use Phpactor\WorseReferenceFinder\Tests\DefinitionLocatorTestCase;
 use Phpactor\WorseReferenceFinder\WorseReflectionDefinitionLocator;
 
-class WorseReflectionDefinitionLocatorTest extends WorseTestCase
+class WorseReflectionDefinitionLocatorTest extends DefinitionLocatorTestCase
 {
     const EXAMPLE_SOURCE = 'foobar';
     const EXAMPLE_OFFSET = 1234;
@@ -84,7 +84,7 @@ function foobar()
 EOT
         , '<?php foob<>ar();');
 
-        $this->assertEquals($this->workspace->path('file1.php'), (string) $location->uri());
+        $this->assertEquals($this->workspace->path('file1.php'), (string) $location->uri()->path());
         $this->assertEquals(7, $location->offset()->toInt());
     }
 
@@ -111,7 +111,7 @@ EOT
 EOT
         , '<?php $foo = new Foobar(); $foo->b<>ar();');
 
-        $this->assertEquals($this->workspace->path('Foobar.php'), (string) $location->uri());
+        $this->assertEquals($this->workspace->path('Foobar.php'), (string) $location->uri()->path());
         $this->assertEquals(21, $location->offset()->toInt());
     }
 
@@ -123,7 +123,7 @@ EOT
 EOT
         , '<?php Foobar::FOO<>BAR;');
 
-        $this->assertEquals($this->workspace->path('Foobar.php'), (string) $location->uri());
+        $this->assertEquals($this->workspace->path('Foobar.php'), (string) $location->uri()->path());
         $this->assertEquals(21, $location->offset()->toInt());
     }
 
@@ -135,7 +135,7 @@ EOT
 EOT
         , '<?php $foo = new Foobar(); $foo->foo<>bar;');
 
-        $this->assertEquals($this->workspace->path('Foobar.php'), (string) $location->uri());
+        $this->assertEquals($this->workspace->path('Foobar.php'), $location->uri()->path());
         $this->assertEquals(21, $location->offset()->toInt());
     }
 
@@ -149,7 +149,7 @@ EOT
 EOT
         , '<?php $foo = new Foobar(); $foo->foo<>bar;');
 
-        $this->assertEquals($this->workspace->path('Foobar.php'), (string) $location->uri());
+        $this->assertEquals($this->workspace->path('Foobar.php'), $location->uri()->path());
         $this->assertEquals(21, $location->offset()->toInt());
     }
 

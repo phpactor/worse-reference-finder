@@ -13,7 +13,7 @@ use Phpactor\WorseReflection\Core\SourceCodeLocator\StubSourceLocator;
 use Phpactor\WorseReflection\Reflector;
 use Phpactor\WorseReflection\ReflectorBuilder;
 
-abstract class WorseTestCase extends TestCase
+abstract class IntegrationTestCase extends TestCase
 {
     /**
      * @var Workspace
@@ -25,19 +25,6 @@ abstract class WorseTestCase extends TestCase
         $this->workspace = Workspace::create(__DIR__ . '/Workspace');
         $this->workspace->reset();
     }
-
-    protected function locate(string $manifset, string $source): DefinitionLocation
-    {
-        [$source, $offset] = ExtractOffset::fromSource($source);
-
-        $this->workspace->loadManifest($manifset);
-        return $this->locator()->locateDefinition(
-            TextDocumentBuilder::create($source)->language('php')->build(),
-            ByteOffset::fromInt($offset)
-        );
-    }
-
-    abstract protected function locator(): DefinitionLocator;
 
     protected function reflector(): Reflector
     {
