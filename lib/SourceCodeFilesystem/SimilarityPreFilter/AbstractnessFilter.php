@@ -12,6 +12,7 @@ class AbstractnessFilter implements SimilarityFilter
     public function __invoke(FullyQualifiedName $fqn): Closure
     {
         return function (SplFileInfo $info) {
+            return true;
             $path = $info->getPathname();
 
             if (!file_exists($path)) {

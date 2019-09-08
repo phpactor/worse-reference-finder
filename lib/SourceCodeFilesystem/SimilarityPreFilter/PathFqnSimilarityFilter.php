@@ -8,12 +8,27 @@ use SplFileInfo;
 
 class PathFqnSimilarityFilter implements SimilarityFilter
 {
+    /**
+     * @var int
+     */
+    private $lastSegmentCount;
+
+    /**
+     * lastSegmentCount: consider the last n segments of the path
+     */
+    public function __construct(int $lastSegmentCount = 2)
+    {
+        $this->lastSegmentCount = $lastSegmentCount;
+    }
+
     public function __invoke(FullyQualifiedName $fqn): Closure
     {
         return function (SplFileInfo $info) use ($fqn) {
             $path = $info->getPathname();
 
-            $segments = $this->explodeUpperCaseSegments(array_map('trim', explode('/', $path)));
+            $pathSegments = array_map('trim', explode('/', $path));
+            $pathSegments = array_slice($pathSegments, -$this->lastSegmentCount);
+            $segments = $this->explodeUpperCaseSegments($pathSegments);
             $names = $this->explodeUpperCaseSegments($fqn->toArray());
 
             $diff = array_intersect($segments, $names);

@@ -73,7 +73,11 @@ class WorseClassImplementationFinder implements ClassImplementationFinder
                     continue;
                 }
 
-                if ($classReflection->isAbstract() || $classReflection->isTrait()) {
+                if (false === $classReflection->isClass()) {
+                    continue;
+                }
+
+                if ($classReflection->isAbstract()) {
                     continue;
                 }
 
