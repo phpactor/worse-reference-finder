@@ -135,5 +135,19 @@ EOT
            , 'Foobar.php', [
            ]
        ];
+
+        yield 'does not find abstract implementations' => [
+            <<<'EOT'
+// File: Foobar.php
+<?php interface Foo<>bar {}
+// File: Bazboo.php
+<?php class Bazboo implements Foobar {}
+// File: Bazbar.php
+<?php abstract class Bazboo implements Foobar {}
+EOT
+           , 'Foobar.php', [
+               ['/Bazboo.php', 6]
+           ]
+       ];
     }
 }

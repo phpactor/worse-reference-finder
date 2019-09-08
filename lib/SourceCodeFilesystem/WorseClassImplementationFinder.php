@@ -2,6 +2,7 @@
 
 namespace Phpactor\WorseReferenceFinder\SourceCodeFilesystem;
 
+use Exception;
 use Phpactor\Filesystem\Domain\Filesystem;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\ReferenceFinder\ClassImplementationFinder;
@@ -11,6 +12,7 @@ use Phpactor\TextDocument\Locations;
 use Phpactor\TextDocument\TextDocument;
 use Phpactor\TextDocument\TextDocumentBuilder;
 use Phpactor\WorseReflection\Core\ClassName;
+use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Reflector\SourceCodeReflector;
 use Phpactor\WorseReflection\Reflector;
 use SplFileInfo;
@@ -44,7 +46,21 @@ class WorseClassImplementationFinder implements ClassImplementationFinder
     public function doFindImplementations(string $fqn): Locations
     {
         $locations = [];
-        foreach ($this->filesystem->fileList()->phpFiles() as $path) {
+        foreach ($this->filesystem->fileList()->phpFiles()->filter(function (SplFileInfo $info) {
+            $path = $info->getPathname();
+
+            if (!file_exists($path)) {
+                return false;
+            }
+
+            $contents = @file_get_contents($path);
+
+            if (preg_match('{abstract class}', $contents)) {
+                return false;
+            }
+
+            return preg_match('{class .* (extends|implements)}', $contents);
+        }) as $path) {
             $locations = array_merge($locations, $this->scanLocations($path->asSplFileInfo(), $fqn));
         }
 
@@ -61,18 +77,27 @@ class WorseClassImplementationFinder implements ClassImplementationFinder
         $locations = [];
 
         foreach ($this->reflector->reflectClassesIn($textDocument) as $classReflection) {
-            if ($classReflection->name() == $worseClassName) {
+            try {
+                if ($classReflection->name() == $worseClassName) {
+                    continue;
+                }
+
+                if ($classReflection->isTrait()) {
+                    continue;
+                }
+
+                if (!$classReflection->isInstanceOf($worseClassName)) {
+                    continue;
+                }
+
+                $locations[] = Location::fromPathAndOffset(
+                    $classReflection->sourceCode()->path(),
+                    $classReflection->position()->start()
+                );
+                break;
+            } catch (SourceNotFound $e) {
                 continue;
             }
-
-            if (!$classReflection->isInstanceOf($worseClassName)) {
-                continue;
-            }
-
-            $locations[] = Location::fromPathAndOffset(
-                $classReflection->sourceCode()->path(),
-                $classReflection->position()->start()
-            );
         }
 
         return $locations;
