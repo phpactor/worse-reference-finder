@@ -4,8 +4,6 @@ namespace Phpactor\WorseReferenceFinder;
 
 use Exception;
 use Microsoft\PhpParser\Node;
-use Microsoft\PhpParser\Node\QualifiedName;
-use Microsoft\PhpParser\Node\SourceFileNode;
 use Microsoft\PhpParser\Parser;
 use Phpactor\ReferenceFinder\DefinitionLocation;
 use Phpactor\ReferenceFinder\DefinitionLocator;
@@ -132,7 +130,7 @@ class WorsePlainTextClassDefinitionLocator implements DefinitionLocator
         return $word;
     }
 
-    /** 
+    /**
      * Tolerant parser will resolve a docblock comment as the root node, not
      * the node to which the comment belongs. Here we attempt to get the import
      * table from the current node, if that fails then we just do whatever we
@@ -181,7 +179,7 @@ class WorsePlainTextClassDefinitionLocator implements DefinitionLocator
 
     private function namespaceFromNode(Node $node): string
     {
-        if (null === $node->getNamespaceDefinition() ) {
+        if (null === $node->getNamespaceDefinition()) {
             throw new Exception('Locate something with a namespace instead');
         }
 

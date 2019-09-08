@@ -12,7 +12,8 @@
     "require": {
         "phpactor/worse-reflection": "~0.1",
         "phpactor/reference-finder": "~0.2",
-        "phpactor/source-code-filesystem": "~0.1"
+        "phpactor/source-code-filesystem": "~0.1",
+        "phpactor/name-specification": "~0.1"
     },
     "require-dev": {
         "phpstan/phpstan": "^0.10.6",

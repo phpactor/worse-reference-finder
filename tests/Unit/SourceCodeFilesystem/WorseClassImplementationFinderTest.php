@@ -2,16 +2,14 @@
 
 namespace Phpactor\WorseReferenceFinder\Tests\Unit\SourceCodeFilesystem;
 
-use PHPUnit\Framework\TestCase;
-use Phpactor\Completion\Core\Util\OffsetHelper;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
 use Phpactor\TestUtils\ExtractOffset;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\Location;
 use Phpactor\TextDocument\TextDocumentBuilder;
+use Phpactor\WorseReferenceFinder\SourceCodeFilesystem\SimilarityPreFilter\ChainFilter;
 use Phpactor\WorseReferenceFinder\SourceCodeFilesystem\WorseClassImplementationFinder;
 use Phpactor\WorseReferenceFinder\Tests\IntegrationTestCase;
-use Phpactor\WorseReferenceFinder\Tests\WorseTestCase;
 
 class WorseClassImplementationFinderTest extends IntegrationTestCase
 {
@@ -26,7 +24,7 @@ class WorseClassImplementationFinderTest extends IntegrationTestCase
         $this->workspace->put($documentPath, $document);
 
         $filesystem = new SimpleFilesystem($this->workspace->path('/'));
-        $finder = new WorseClassImplementationFinder($this->reflector(), $filesystem);
+        $finder = new WorseClassImplementationFinder($this->reflector(), $filesystem, new ChainFilter());
         $locations = $finder->findImplementations(
             TextDocumentBuilder::create($document)->language('php')->build(),
             ByteOffset::fromInt($offset)

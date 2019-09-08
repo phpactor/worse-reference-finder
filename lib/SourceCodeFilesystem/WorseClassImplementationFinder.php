@@ -2,7 +2,6 @@
 
 namespace Phpactor\WorseReferenceFinder\SourceCodeFilesystem;
 
-use Exception;
 use Phpactor\Filesystem\Domain\Filesystem;
 use Phpactor\Name\FullyQualifiedName;
 use Phpactor\ReferenceFinder\ClassImplementationFinder;
@@ -11,11 +10,10 @@ use Phpactor\TextDocument\Location;
 use Phpactor\TextDocument\Locations;
 use Phpactor\TextDocument\TextDocument;
 use Phpactor\TextDocument\TextDocumentBuilder;
+use Phpactor\WorseReferenceFinder\SourceCodeFilesystem\SimilarityPreFilter\SimilarityFilter;
 use Phpactor\WorseReflection\Core\ClassName;
 use Phpactor\WorseReflection\Core\Exception\SourceNotFound;
 use Phpactor\WorseReflection\Core\Reflector\SourceCodeReflector;
-use Phpactor\WorseReflection\Reflector;
-use RuntimeException;
 use SplFileInfo;
 
 class WorseClassImplementationFinder implements ClassImplementationFinder
@@ -30,53 +28,39 @@ class WorseClassImplementationFinder implements ClassImplementationFinder
      */
     private $reflector;
 
-    public function __construct(SourceCodeReflector $reflector, Filesystem $filesystem)
+    /**
+     * @var SimilarityFilter
+     */
+    private $filter;
+
+    public function __construct(SourceCodeReflector $reflector, Filesystem $filesystem, SimilarityFilter $filter)
     {
         $this->filesystem = $filesystem;
         $this->reflector = $reflector;
+        $this->filter = $filter;
     }
 
     public function findImplementations(TextDocument $document, ByteOffset $byteOffset): Locations
     {
         $reflectionOffset = $this->reflector->reflectOffset($document, $byteOffset);
         return $this->doFindImplementations(
-            $reflectionOffset->symbolContext()->type()->__toString()
+            FullyQualifiedName::fromString($reflectionOffset->symbolContext()->type()->__toString())
         );
     }
 
-    public function doFindImplementations(string $fqn): Locations
+    public function doFindImplementations(FullyQualifiedName $fqn): Locations
     {
         $locations = [];
-        foreach ($this->filesystem->fileList()->phpFiles()->filter(function (SplFileInfo $info) {
-            $path = $info->getPathname();
-
-            if (!file_exists($path)) {
-                return false;
-            }
-
-            $contents = file_get_contents($path);
-
-            if (false === $contents) {
-                throw new RuntimeException(sprintf(
-                    'Could not get file contents for "%s"', $path
-                ));
-            }
-
-            if (preg_match('{abstract class}', $contents)) {
-                return false;
-            }
-
-            return preg_match('{class .* (extends|implements)}', $contents);
-        }) as $path) {
+        foreach ($this->filesystem->fileList()->phpFiles()->filter($this->filter->__invoke($fqn)) as $path) {
             $locations = array_merge($locations, $this->scanLocations($path->asSplFileInfo(), $fqn));
         }
 
         return new Locations($locations);
     }
 
-    private function scanLocations(SplFileInfo $fileInfo, string $fqn): array
+    private function scanLocations(SplFileInfo $fileInfo, FullyQualifiedName $fqn): array
     {
-        $worseClassName = ClassName::fromString($fqn);
+        $worseClassName = ClassName::fromString($fqn->__toString());
         $textDocument = TextDocumentBuilder::fromUri($fileInfo->getPathname())
             ->language('php')
             ->build();
@@ -89,7 +73,7 @@ class WorseClassImplementationFinder implements ClassImplementationFinder
                     continue;
                 }
 
-                if ($classReflection->isTrait()) {
+                if ($classReflection->isAbstract() || $classReflection->isTrait()) {
                     continue;
                 }
 
