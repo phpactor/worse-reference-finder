@@ -3,9 +3,12 @@
 namespace Phpactor\WorseReferenceFinder\Tests\Unit\SourceCodeFilesystem;
 
 use PHPUnit\Framework\TestCase;
+use Phpactor\Completion\Core\Util\OffsetHelper;
 use Phpactor\Filesystem\Adapter\Simple\SimpleFilesystem;
-use Phpactor\Name\FullyQualifiedName;
+use Phpactor\TestUtils\ExtractOffset;
+use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\Location;
+use Phpactor\TextDocument\TextDocumentBuilder;
 use Phpactor\WorseReferenceFinder\SourceCodeFilesystem\WorseClassImplementationFinder;
 use Phpactor\WorseReferenceFinder\Tests\IntegrationTestCase;
 use Phpactor\WorseReferenceFinder\Tests\WorseTestCase;
@@ -15,14 +18,18 @@ class WorseClassImplementationFinderTest extends IntegrationTestCase
     /**
      * @dataProvider provideFindImplementations
      */
-    public function testFindImplementations(string $manifest, string $classFqn, array $expectedLocations)
+    public function testFindImplementations(string $manifest, string $documentPath, array $expectedLocations)
     {
         $this->workspace->loadManifest($manifest);
+        $document = $this->workspace->getContents($documentPath);
+        [$document, $offset] = ExtractOffset::fromSource($document);
+        $this->workspace->put($documentPath, $document);
 
         $filesystem = new SimpleFilesystem($this->workspace->path('/'));
         $finder = new WorseClassImplementationFinder($this->reflector(), $filesystem);
         $locations = $finder->findImplementations(
-            FullyQualifiedName::fromString($classFqn)
+            TextDocumentBuilder::create($document)->language('php')->build(),
+            ByteOffset::fromInt($offset)
         );
 
         $this->assertCount(count($expectedLocations), $locations);
@@ -41,9 +48,9 @@ class WorseClassImplementationFinderTest extends IntegrationTestCase
         yield 'ignores given class implementation' => [
             <<<'EOT'
 // File: FoobarInterface.php
-<?php interface FoobarInterface {}
+<?php interface Fo<>obarInterface {}
 EOT
-           , 'FoobarInterface', [
+           , 'FoobarInterface.php', [
            ]
        ];
 
@@ -52,9 +59,9 @@ EOT
 // File: FoobarInterface.php
 <?php interface FoobarInterface {}
 // File: Foobar.php
-<?php class Foobar implements FoobarInterface {}
+<?php class Foobar implements Fo<>obarInterface {}
 EOT
-           , 'FoobarInterface', [
+           , 'Foobar.php', [
                ['/Foobar.php', 6]
            ]
         ];
@@ -62,13 +69,13 @@ EOT
         yield 'finds multiple interface implementations' => [
             <<<'EOT'
 // File: FoobarInterface.php
-<?php interface FoobarInterface {}
+<?php interface Fo<>obarInterface {}
 // File: Foobar.php
 <?php class Foobar implements FoobarInterface {}
 // File: Bazboo.php
 <?php class Bazboo implements FoobarInterface {}
 EOT
-           , 'FoobarInterface', [
+           , 'FoobarInterface.php', [
                ['/Foobar.php', 6],
                ['/Bazboo.php', 6],
            ]
@@ -77,7 +84,7 @@ EOT
         yield 'finds classes which extend the interface' => [
             <<<'EOT'
 // File: FoobarInterface.php
-<?php interface FoobarInterface {}
+<?php interface Fo<>obarInterface {}
 // File: Foobar.php
 <?php class Foobar implements FoobarInterface {}
 // File: Bazboo.php
@@ -85,7 +92,7 @@ EOT
 // File: Boobaz.php
 <?php class Boobaz extends Bazboo {}
 EOT
-           , 'FoobarInterface', [
+           , 'FoobarInterface.php', [
                ['/Foobar.php', 6],
                ['/Boobaz.php', 6],
                ['/Bazboo.php', 6],
@@ -95,11 +102,11 @@ EOT
         yield 'finds instances of parent class' => [
             <<<'EOT'
 // File: Foobar.php
-<?php class Foobar {}
+<?php class F<>oobar {}
 // File: Bazboo.php
 <?php class Bazboo extends Foobar {}
 EOT
-           , 'Foobar', [
+           , 'Foobar.php', [
                ['/Bazboo.php', 6],
            ]
        ];
@@ -107,11 +114,11 @@ EOT
         yield 'finds instances of abstract class' => [
             <<<'EOT'
 // File: Foobar.php
-<?php abstract class Foobar {}
+<?php abstract class Foob<>ar {}
 // File: Bazboo.php
 <?php class Bazboo extends Foobar {}
 EOT
-           , 'Foobar', [
+           , 'Foobar.php', [
                ['/Bazboo.php', 6],
            ]
        ];
@@ -119,13 +126,13 @@ EOT
         yield 'does not find instances of trait (current limitation)' => [
             <<<'EOT'
 // File: Foobar.php
-<?php trait Foobar {}
+<?php trait Foo<>bar {}
 // File: Bazboo.php
 <?php class Bazboo {
    use Foobar;
 }
 EOT
-           , 'Foobar', [
+           , 'Foobar.php', [
            ]
        ];
     }
