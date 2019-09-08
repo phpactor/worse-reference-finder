@@ -46,6 +46,10 @@ class AbstractnessFilterTest extends IntegrationTestCase
             'class Foobar implements Bar',
             true
         ];
+        yield 'class that includes the word "abstract"' => [
+            'class Foobar implements Bar { function hello() { echo "abstract class";}} ',
+            true
+        ];
 
         yield 'abstract class' => [
             'abstract class Foobar implements Bar',

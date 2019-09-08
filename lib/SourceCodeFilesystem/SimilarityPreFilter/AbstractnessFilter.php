@@ -12,7 +12,6 @@ class AbstractnessFilter implements SimilarityFilter
     public function __invoke(FullyQualifiedName $fqn): Closure
     {
         return function (SplFileInfo $info) {
-            return true;
             $path = $info->getPathname();
 
             if (!file_exists($path)) {
@@ -28,11 +27,11 @@ class AbstractnessFilter implements SimilarityFilter
                 ));
             }
 
-            if (preg_match('{abstract class}', $contents)) {
+            if (preg_match('{^\s*abstract class}', $contents)) {
                 return false;
             }
 
-            return (bool) preg_match('{class .* (extends|implements)}', $contents);
+            return (bool) preg_match('{\s*class .* (extends|implements)}', $contents);
         };
     }
 }
