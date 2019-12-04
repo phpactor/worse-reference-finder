@@ -1,2 +1,11 @@
+includes:
+    - vendor/phpstan/phpstan/conf/config.level7.neon
+
 parameters:
-    paths: [ lib ]
+    inferPrivatePropertyTypeFromConstructor: true
+    ignoreErrors:
+        - '#Method Phpactor.WorseReflection.Core.Reflection.Collection.ReflectionConstantCollection::get.. invoked with 1 parameter, 0 required.#'
+        
+    paths:
+        - lib
+
