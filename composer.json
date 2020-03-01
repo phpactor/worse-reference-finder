@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "phpactor/worse-reflection": "^0.1",
+        "phpactor/worse-reflection": "^0.4",
         "phpactor/reference-finder": "^0.1.2",
         "phpactor/source-code-filesystem": "^0.1",
         "phpactor/name-specification": "^0.1"
