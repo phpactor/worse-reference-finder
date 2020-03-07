@@ -11,7 +11,7 @@
     ],
     "require": {
         "phpactor/worse-reflection": "^0.4",
-        "phpactor/reference-finder": "^0.1.2",
+        "phpactor/reference-finder": "^0.1.3",
         "phpactor/source-code-filesystem": "^0.1",
         "phpactor/name-specification": "^0.1"
     },
@@ -19,7 +19,7 @@
         "phpstan/phpstan": "^0.11.0",
         "phpunit/phpunit": "^7.0",
         "friendsofphp/php-cs-fixer": "^2.15.0",
-        "phpactor/test-utils": "^1.0@dev"
+        "phpactor/test-utils": "^1.0.2"
     },
     "autoload": {
         "psr-4": {
