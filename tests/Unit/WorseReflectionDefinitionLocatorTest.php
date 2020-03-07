@@ -15,11 +15,6 @@ class WorseReflectionDefinitionLocatorTest extends DefinitionLocatorTestCase
     const EXAMPLE_SOURCE = 'foobar';
     const EXAMPLE_OFFSET = 1234;
 
-    /**
-     * @var WorseMemberDefinitionLocator
-     */
-    private $locator;
-
     public function testExceptionOnNonPhpFile()
     {
         $this->expectException(CouldNotLocateDefinition::class);

@@ -24,6 +24,7 @@ abstract class IntegrationTestCase extends TestCase
     protected function reflector(): Reflector
     {
         return ReflectorBuilder::create()
+            ->enableContextualSourceLocation()
             ->addLocator(new StubSourceLocator(
                 ReflectorBuilder::create()->build(),
                 $this->workspace->path(''),
