@@ -2,8 +2,6 @@
 
 namespace Phpactor\WorseReferenceFinder\Tests\Unit;
 
-use Phpactor\ReferenceFinder\DefinitionLocation;
-use Phpactor\ReferenceFinder\DefinitionLocator;
 use Phpactor\TestUtils\ExtractOffset;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\Location;
@@ -15,13 +13,15 @@ class WorseReflectionTypeLocatorTest extends IntegrationTestCase
 {
     public function testLocatesType(): void
     {
-        $location = $this->locate(<<<'EOT'
+        $location = $this->locate(
+            <<<'EOT'
 // File: One.php
 // <?php class One {}
 // File: Two.php
 // <?php class Two {}
 EOT
-        , <<<'EOT'
+        ,
+            <<<'EOT'
 <?php
 
 class Foo
@@ -37,7 +37,7 @@ class Foo
     }
 }
 EOT
-);
+        );
         self::assertEquals($this->workspace->path('One.php'), $location->uri()->path());
         self::assertEquals(9, $location->offset()->toInt());
     }

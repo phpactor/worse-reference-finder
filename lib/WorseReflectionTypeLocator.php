@@ -3,7 +3,6 @@
 namespace Phpactor\WorseReferenceFinder;
 
 use Phpactor\ReferenceFinder\Exception\UnsupportedDocument;
-use Phpactor\ReferenceFinder\TypeLocation;
 use Phpactor\ReferenceFinder\TypeLocator;
 use Phpactor\ReferenceFinder\Exception\CouldNotLocateType;
 use Phpactor\TextDocument\ByteOffset;
@@ -11,11 +10,7 @@ use Phpactor\TextDocument\Location;
 use Phpactor\TextDocument\TextDocument;
 use Phpactor\TextDocument\TextDocumentUri;
 use Phpactor\WorseReflection\Core\Exception\NotFound;
-use Phpactor\WorseReflection\Core\Inference\Symbol;
 use Phpactor\WorseReflection\Core\Inference\SymbolContext;
-use Phpactor\WorseReflection\Core\Reflection\ReflectionClass;
-use Phpactor\WorseReflection\Core\Reflection\ReflectionInterface;
-use Phpactor\WorseReflection\Core\Reflection\ReflectionTrait;
 use Phpactor\WorseReflection\Core\SourceCode;
 use Phpactor\WorseReflection\Reflector;
 
@@ -60,7 +55,8 @@ class WorseReflectionTypeLocator implements TypeLocator
 
         if ($type->isPrimitive()) {
             throw new CouldNotLocateType(sprintf(
-                'Cannot goto to primitive type "%s"', $type->__toString()
+                'Cannot goto to primitive type "%s"',
+                $type->__toString()
             ));
         }
 
@@ -68,7 +64,8 @@ class WorseReflectionTypeLocator implements TypeLocator
 
         if (null === $className) {
             throw new CouldNotLocateType(sprintf(
-                'Cannot goto to type "%s"', $type->__toString()
+                'Cannot goto to type "%s"',
+                $type->__toString()
             ));
         }
 

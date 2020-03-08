@@ -31,6 +31,13 @@
             "Phpactor\\WorseReferenceFinder\\Tests\\": "tests/"
         }
     },
+    "scripts": {
+        "integrate": [
+            "./vendor/bin/php-cs-fixer fix",
+            "./vendor/bin/phpstan analyse lib -c phpstan.neon",
+            "./vendor/bin/phpunit"
+        ]
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "0.1.x-dev"
