@@ -44,13 +44,15 @@ EOT
 
     public function testLocatesArrayType(): void
     {
-        $location = $this->locate(<<<'EOT'
+        $location = $this->locate(
+            <<<'EOT'
 // File: One.php
 // <?php class One {}
 // File: Two.php
 // <?php class Two {}
 EOT
-        , <<<'EOT'
+        ,
+            <<<'EOT'
 <?php
 
 class Foo
@@ -66,7 +68,38 @@ class Foo
     }
 }
 EOT
-);
+        );
+        self::assertEquals($this->workspace->path('One.php'), $location->uri()->path());
+        self::assertEquals(9, $location->offset()->toInt());
+    }
+
+    public function testLocatesInterface(): void
+    {
+        $location = $this->locate(
+            <<<'EOT'
+// File: One.php
+// <?php interface One {}
+// File: Two.php
+// <?php class Two {}
+EOT
+        ,
+            <<<'EOT'
+<?php
+
+class Foo
+{
+    /** 
+     * @var One
+     */
+    private $one;
+
+    public function bar()
+    {
+        $this->o<>ne;
+    }
+}
+EOT
+        );
         self::assertEquals($this->workspace->path('One.php'), $location->uri()->path());
         self::assertEquals(9, $location->offset()->toInt());
     }

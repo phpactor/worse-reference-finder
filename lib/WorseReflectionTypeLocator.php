@@ -58,7 +58,7 @@ class WorseReflectionTypeLocator implements TypeLocator
         $className = $this->resolveClassName($type);
 
         try {
-            $class = $this->reflector->reflectClass($className->full());
+            $class = $this->reflector->reflectClassLike($className->full());
         } catch (NotFound $e) {
             throw new CouldNotLocateType($e->getMessage(), 0, $e);
         }
