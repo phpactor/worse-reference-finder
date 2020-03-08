@@ -42,6 +42,35 @@ EOT
         self::assertEquals(9, $location->offset()->toInt());
     }
 
+    public function testLocatesArrayType(): void
+    {
+        $location = $this->locate(<<<'EOT'
+// File: One.php
+// <?php class One {}
+// File: Two.php
+// <?php class Two {}
+EOT
+        , <<<'EOT'
+<?php
+
+class Foo
+{
+    /** 
+     * @var One[]
+     */
+    private $one;
+
+    public function bar()
+    {
+        $this->o<>ne;
+    }
+}
+EOT
+);
+        self::assertEquals($this->workspace->path('One.php'), $location->uri()->path());
+        self::assertEquals(9, $location->offset()->toInt());
+    }
+
     protected function locate(string $manifset, string $source): Location
     {
         [$source, $offset] = ExtractOffset::fromSource($source);

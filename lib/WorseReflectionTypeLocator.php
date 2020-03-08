@@ -9,9 +9,11 @@ use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\Location;
 use Phpactor\TextDocument\TextDocument;
 use Phpactor\TextDocument\TextDocumentUri;
+use Phpactor\WorseReflection\Core\ClassName;
 use Phpactor\WorseReflection\Core\Exception\NotFound;
 use Phpactor\WorseReflection\Core\Inference\SymbolContext;
 use Phpactor\WorseReflection\Core\SourceCode;
+use Phpactor\WorseReflection\Core\Type;
 use Phpactor\WorseReflection\Reflector;
 
 class WorseReflectionTypeLocator implements TypeLocator
@@ -53,21 +55,7 @@ class WorseReflectionTypeLocator implements TypeLocator
     {
         $type = $symbolContext->type();
 
-        if ($type->isPrimitive()) {
-            throw new CouldNotLocateType(sprintf(
-                'Cannot goto to primitive type "%s"',
-                $type->__toString()
-            ));
-        }
-
-        $className = $type->className();
-
-        if (null === $className) {
-            throw new CouldNotLocateType(sprintf(
-                'Cannot goto to type "%s"',
-                $type->__toString()
-            ));
-        }
+        $className = $this->resolveClassName($type);
 
         try {
             $class = $this->reflector->reflectClass($className->full());
@@ -81,5 +69,29 @@ class WorseReflectionTypeLocator implements TypeLocator
             TextDocumentUri::fromString($path),
             ByteOffset::fromInt($class->position()->start())
         );
+    }
+
+    private function resolveClassName(Type $type): ClassName
+    {
+        if ($type->arrayType()->isDefined()) {
+            return $this->resolveClassName($type->arrayType());
+        }
+
+        if ($type->isPrimitive()) {
+            throw new CouldNotLocateType(sprintf(
+                'Cannot goto to primitive type "%s"',
+                $type->__toString()
+            ));
+        }
+        
+        $className = $type->className();
+        
+        if (null === $className) {
+            throw new CouldNotLocateType(sprintf(
+                'Cannot goto to type "%s"',
+                $type->__toString()
+            ));
+        }
+        return $className;
     }
 }
