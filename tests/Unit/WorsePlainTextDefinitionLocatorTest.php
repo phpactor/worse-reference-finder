@@ -7,7 +7,7 @@ use Phpactor\ReferenceFinder\Exception\CouldNotLocateDefinition;
 use Phpactor\WorseReferenceFinder\Tests\DefinitionLocatorTestCase;
 use Phpactor\WorseReferenceFinder\WorsePlainTextClassDefinitionLocator;
 
-class WorseTextDefinitionLocatorTest extends DefinitionLocatorTestCase
+class WorsePlainTextDefinitionLocatorTest extends DefinitionLocatorTestCase
 {
     /**
      * @dataProvider provideGotoWord

@@ -120,6 +120,10 @@ class WorsePlainTextClassDefinitionLocator implements DefinitionLocator
             return $imports[0][$word]->__toString();
         }
 
+        if (!isset($word[0])) {
+            return $word;
+        }
+
         if ($word[0] !== '\\') {
             $namespace = $this->resolveNamespace($node);
             if ($namespace) {
