@@ -134,6 +134,18 @@ EOT
         $this->assertEquals(21, $location->offset()->toInt());
     }
 
+    public function testLocatesLocalVariable()
+    {
+        $location = $this->locate(<<<'EOT'
+// File: Foobar.php
+<?php class Foobar { public $foobar; }
+EOT
+        , '<?php $foo = new Foobar(); $f<>oo->foobar;');
+
+        $this->assertEquals($this->workspace->path('somefile.php'), $location->uri()->path());
+        $this->assertEquals(6, $location->offset()->toInt());
+    }
+
     public function testExceptionIfPropertyIsInterface()
     {
         $this->expectException(CouldNotLocateDefinition::class);

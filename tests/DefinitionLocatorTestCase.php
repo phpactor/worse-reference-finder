@@ -14,9 +14,10 @@ abstract class DefinitionLocatorTestCase extends IntegrationTestCase
     {
         [$source, $offset] = ExtractOffset::fromSource($source);
 
+        $documentUri = $this->workspace->path('somefile.php');
         $this->workspace->loadManifest($manifset);
         return $this->locator()->locateDefinition(
-            TextDocumentBuilder::create($source)->language('php')->build(),
+            TextDocumentBuilder::create($source)->uri($documentUri)->language('php')->build(),
             ByteOffset::fromInt($offset)
         );
     }
