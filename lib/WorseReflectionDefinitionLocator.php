@@ -13,6 +13,7 @@ use Phpactor\WorseReflection\Core\Inference\Symbol;
 use Phpactor\WorseReflection\Core\Inference\SymbolContext;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionClass;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionInterface;
+use Phpactor\WorseReflection\Core\Reflection\ReflectionOffset;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionTrait;
 use Phpactor\WorseReflection\Core\SourceCode;
 use Phpactor\WorseReflection\Reflector;
@@ -49,11 +50,12 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
             $byteOffset->toInt()
         );
 
-        return $this->gotoDefinition($offset->symbolContext());
+        return $this->gotoDefinition($document, $offset);
     }
 
-    private function gotoDefinition(SymbolContext $symbolContext): DefinitionLocation
+    private function gotoDefinition(TextDocument $document, ReflectionOffset $offset): DefinitionLocation
     {
+        $symbolContext = $offset->symbolContext();
         switch ($symbolContext->symbol()->symbolType()) {
             case Symbol::METHOD:
             case Symbol::PROPERTY:
@@ -63,6 +65,8 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
                 return $this->gotoClass($symbolContext);
             case Symbol::FUNCTION:
                 return $this->gotoFunction($symbolContext);
+            case Symbol::VARIABLE:
+                return $this->gotoVariable($document, $offset);
         }
 
         throw new CouldNotLocateDefinition(sprintf(
@@ -186,5 +190,25 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
             TextDocumentUri::fromString($path),
             ByteOffset::fromInt($member->position()->start())
         );
+    }
+
+    private function gotoVariable(TextDocument $document, ReflectionOffset $offset): DefinitionLocation
+    {
+        $uri = $document->uri();
+        if (null === $uri) {
+            throw new CouldNotLocateDefinition('Text Document has no URI');
+        }
+
+        $name = $offset->symbolContext()->symbol()->name();
+        $frame = $offset->frame();
+        $variables = $frame->locals()->byName($name);
+
+        if ($variables->count() === 0) {
+            throw new CouldNotLocateDefinition(sprintf('Could not find variable "%s" in scope', $name));
+        }
+
+        $variable = $variables->first();
+
+        return new DefinitionLocation($uri, ByteOffset::fromInt($variable->offset()->toInt()));
     }
 }
