@@ -146,6 +146,28 @@ EOT
         $this->assertEquals(6, $location->offset()->toInt());
     }
 
+    public function testExceptionIfVariableIsMethodArgument()
+    {
+        $this->expectException(CouldNotLocateDefinition::class);
+        $this->expectExceptionMessage('Could not find variable "bar" in scope');
+        $location = $this->locate(<<<'EOT'
+// File: Foobar.php
+<?php class Foobar { public $foobar; }
+EOT
+        , '<?php class Foo { public method bar($bar) { $b<>ar->baz(); } }');
+    }
+
+    public function testExceptionIfVariableNotDefined()
+    {
+        $this->expectException(CouldNotLocateDefinition::class);
+        $this->expectExceptionMessage('Could not find variable "bar" in scope');
+        $location = $this->locate(<<<'EOT'
+// File: Foobar.php
+<?php class Foobar { public $foobar; }
+EOT
+        , '<?php $foo = new Foobar(); $b<>ar->foobar;');
+    }
+
     public function testExceptionIfPropertyIsInterface()
     {
         $this->expectException(CouldNotLocateDefinition::class);
