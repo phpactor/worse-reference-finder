@@ -2,8 +2,6 @@ includes:
     - phpstan-baseline.neon
 parameters:
     inferPrivatePropertyTypeFromConstructor: true
-    ignoreErrors:
-        - '#Method Phpactor.WorseReflection.Core.Reflection.Collection.ReflectionConstantCollection::get.. invoked with 1 parameter, 0 required.#'
     paths:
         - lib
-    level: '7'
+    level: 7

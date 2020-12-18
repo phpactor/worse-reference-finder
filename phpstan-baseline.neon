@@ -30,3 +30,8 @@ parameters:
 			count: 1
 			path: lib/WorsePlainTextClassDefinitionLocator.php
 
+		-
+			message: "#^Method Phpactor\\\\WorseReflection\\\\Core\\\\Reflection\\\\Collection\\\\ReflectionConstantCollection\\:\\:get\\(\\) invoked with 1 parameter, 0 required\\.$#"
+			count: 1
+			path: lib/WorseReflectionDefinitionLocator.php
+
