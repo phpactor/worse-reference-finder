@@ -1,7 +1,7 @@
 WorseReferenceFinder
 ====================
 
-[![Build Status](https://travis-ci.org/phpactor/worse-reference-finders.svg?branch=master)](https://travis-ci.org/phpactor/worse-reference-finders)
+![CI](https://github.com/phpactor/worse-reference-finders/workflows/CI/badge.svg)
 
 This library provides worse reflection / tolerant PHP parser implementations
 for the [Phpactor](https://github.com/phpactor/phpactor') [reference
