@@ -15,7 +15,7 @@ abstract class IntegrationTestCase extends TestCase
      */
     protected $workspace;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->workspace = Workspace::create(__DIR__ . '/Workspace');
         $this->workspace->reset();
