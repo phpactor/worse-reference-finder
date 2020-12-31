@@ -1,7 +1,8 @@
 includes:
     - phpstan-baseline.neon
 parameters:
+    level: 7
     inferPrivatePropertyTypeFromConstructor: true
+    checkMissingIterableValueType: false
     paths:
         - lib
-    level: 7

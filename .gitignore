@@ -1,4 +1,5 @@
 /vendor
+/.vscode
 /tests/Workspace
 /tests/Assets/workspace
 /phpbench.json
