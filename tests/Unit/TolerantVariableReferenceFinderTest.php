@@ -34,124 +34,126 @@ class TolerantVariableReferenceFinderTest extends TestCase
 
     public function provideReferences(): Generator
     {
+        // Remember the definition is not returned as a reference!
+
         $uri = "file:///root/testDoc";
-        // yield 'not on variable' => [
-        //     '<?php $var1 = <>5;',
-        //     $uri,
-        // ];
+        yield 'not on variable' => [
+            '<?php $var1 = <>5;',
+            $uri,
+        ];
 
         yield 'basic' => [
-            '<?php <sr>$v<>ar1 = 5; $var2 = <sr>$var1 + 10;',
+            '<?php $v<>ar1 = 5; $var2 = <sr>$var1 + 10;',
             $uri,
         ];
 
         yield 'dynamic name' => [
-            '<?php <sr>$v<>ar1 = 5; echo $<sr>$var1;',
+            '<?php $v<>ar1 = 5; echo $<sr>$var1;',
             $uri,
         ];
 
         yield 'function argument' => [
-            '<?php <sr>$v<>ar1 = 5; func(<sr>$var1);',
+            '<?php $v<>ar1 = 5; func(<sr>$var1);',
             $uri,
         ];
 
         yield 'global statement' => [
-            '<?php <sr>$v<>ar1 = 5; global <sr>$var1;',
+            '<?php $v<>ar1 = 5; global <sr>$var1;',
             $uri,
         ];
 
         yield 'dynamic property name' => [
-            '<?php <sr>$v<>ar1 = 5; $obj-><sr>$var1 = 5;',
+            '<?php $v<>ar1 = 5; $obj-><sr>$var1 = 5;',
             $uri,
         ];
 
         yield 'dynamic property name (braced)' => [
-            '<?php <sr>$v<>ar1 = 5; $obj->{<sr>$var1} = 5;',
+            '<?php $v<>ar1 = 5; $obj->{<sr>$var1} = 5;',
             $uri,
         ];
 
         yield 'dynamic method name' => [
-            '<?php <sr>$v<>ar1 = 5; $obj-><sr>$var1(5);',
+            '<?php $v<>ar1 = 5; $obj-><sr>$var1(5);',
             $uri,
         ];
 
         yield 'dynamic method name (braced)' => [
-            '<?php <sr>$v<>ar1 = 5; $obj->{<sr>$var1}(5);',
+            '<?php $v<>ar1 = 5; $obj->{<sr>$var1}(5);',
             $uri,
         ];
 
         yield 'dynamic class name' => [
-            '<?php <sr>$v<>ar1 = 5; $obj = new <sr>$var1();',
+            '<?php $v<>ar1 = 5; $obj = new <sr>$var1();',
             $uri,
         ];
 
         yield 'embedded string' => [
-            '<?php <sr>$v<>ar1 = 5; $str = "Text {<sr>$var1} more text";',
+            '<?php $v<>ar1 = 5; $str = "Text {<sr>$var1} more text";',
             $uri,
         ];
 
         yield 'scope: anonymous function: argument' => [
-            '<?php <sr>$v<>ar1 = 5; $func = function($var1) { };',
+            '<?php $v<>ar1 = 5; $func = function($var1) { };',
             $uri,
         ];
 
         yield 'scope: anonymous function: use statement' => [
-            '<?php <sr>$v<>ar1 = 5; $func = function() use (<sr>$var1) { };',
+            '<?php $v<>ar1 = 5; $func = function() use (<sr>$var1) { };',
             $uri,
         ];
 
         yield 'scope: anonymous function: inside' => [
-            '<?php <sr>$v<>ar1 = 5; $func = function() use (<sr>$var1) { $var2 = <sr>$var1; };',
+            '<?php $v<>ar1 = 5; $func = function() use (<sr>$var1) { $var2 = <sr>$var1; };',
             $uri,
         ];
 
         yield 'scope: anonymous function: inside selection' => [
-            '<?php <sr>$var1 = 5; $func = function() use (<sr>$var1) { $var2 = <sr>$v<>ar1; };',
+            '<?php $var1 = 5; $func = function() use (<sr>$var1) { $var2 = <sr>$v<>ar1; };',
             $uri,
         ];
 
         yield 'scope: anonymous function: only inside' => [
-            '<?php $var1 = 2; $func = function() { <sr>$v<>ar1 = 5; $var2 = <sr>$var1 + 10; };',
+            '<?php $var1 = 2; $func = function() { $v<>ar1 = 5; $var2 = <sr>$var1 + 10; };',
             $uri,
         ];
 
         yield 'scope: anonymous function: only outside' => [
-            '<?php <sr>$va<>r1 = 2; $func = function() { $var1 = 5; $var2 = $var1 + 10; }; $var2 = <sr>$var1 / 4;',
+            '<?php $va<>r1 = 2; $func = function() { $var1 = 5; $var2 = $var1 + 10; }; $var2 = <sr>$var1 / 4;',
             $uri,
         ];
 
         yield 'scope: inside class method' => [
-            '<?php class C1 { function M1(<sr>$var1) { <sr>$v<>ar1 = 5; $var2 = <sr>$var1 + 10; } }',
+            '<?php class C1 { function M1($var1) { <sr>$v<>ar1 = 5; $var2 = <sr>$var1 + 10; } }',
             $uri,
         ];
 
         yield 'scope: inside class method: select argument' => [
-            '<?php class C1 { function M1(<sr>$va<>r1) { <sr>$var1 = 5; $var2 = <sr>$var1 + 10; } }',
+            '<?php class C1 { function M1($va<>r1) { <sr>$var1 = 5; $var2 = <sr>$var1 + 10; } }',
             $uri,
         ];
 
         yield 'scope: inside class method: inside anonumous function + use, click inside' => [
-            '<?php class C1 { function M1() { <sr>$var1 = 10; $f = function() use (<sr>$var1) { <sr>$v<>ar1 = 5; $var2 = <sr>$var1 + 10; } } }',
+            '<?php class C1 { function M1() { $var1 = 10; $f = function() use (<sr>$var1) { <sr>$v<>ar1 = 5; $var2 = <sr>$var1 + 10; } } }',
             $uri,
         ];
 
         yield 'scope: inside class method: inside anonumous function + use, click outside' => [
-            '<?php class C1 { function M1() { <sr>$v<>ar1 = 10; $f = function() use (<sr>$var1) { <sr>$var1 = 5; $var2 = <sr>$var1 + 10; } } }',
+            '<?php class C1 { function M1() { $v<>ar1 = 10; $f = function() use (<sr>$var1) { <sr>$var1 = 5; $var2 = <sr>$var1 + 10; } } }',
             $uri,
         ];
 
         yield 'scope: inside class method: inside anonumous function + use, click in use' => [
-            '<?php class C1 { function M1() { <sr>$var1 = 10; $f = function() use (<sr>$v<>ar1) { <sr>$var1 = 5; $var2 = <sr>$var1 + 10; } } }',
+            '<?php class C1 { function M1() { $var1 = 10; $f = function() use (<sr>$v<>ar1) { <sr>$var1 = 5; $var2 = <sr>$var1 + 10; } } }',
             $uri,
         ];
 
         yield 'scope: inside class method: inside anonumous function (no use), click inside' => [
-            '<?php class C1 { function M1() { $var1 = 10; $f = function(<sr>$var1) { <sr>$v<>ar1 = 5; $var2 = <sr>$var1 + 10; } } }',
+            '<?php class C1 { function M1() { $var1 = 10; $f = function($var1) { <sr>$v<>ar1 = 5; $var2 = <sr>$var1 + 10; } } }',
             $uri,
         ];
 
         yield 'scope: inside class method: inside anonumous function (no use), click outside' => [
-            '<?php class C1 { function M1() { <sr>$v<>ar1 = 10; $f = function($var1) { $var1 = 5; $var2 = $var1 + 10; } } }',
+            '<?php class C1 { function M1() { $v<>ar1 = 10; $f = function($var1) { $var1 = 5; $var2 = $var1 + 10; } } }',
             $uri,
         ];
 
@@ -159,7 +161,7 @@ class TolerantVariableReferenceFinderTest extends TestCase
             '<?php '.
                 'class C1 { function M1() { '.
                 '$var = 1;'.
-                '$c = new class { function IM() { <sr>$v<>ar = 1; } } '.
+                '$c = new class { function IM() { $v<>ar = 1; } } '.
                 ' } }',
             $uri,
         ];
