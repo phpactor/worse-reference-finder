@@ -181,18 +181,24 @@ class TolerantVariableReferenceFinderTest extends TestCase
             foreach ($results as $result) {
                 if ($result == "<>") {
                     $selectionOffset = $offset;
-                } elseif ($result == "<sr>") {
+                    continue;
+                }
+                
+                if ($result == "<sr>") {
                     $referenceLocations[] = PotentialLocation::surely(
                         new Location($textDocumentUri, ByteOffset::fromInt($offset))
                     );
-                } elseif ($result == "<mr>") {
+                    continue;
+                } 
+                if ($result == "<mr>") {
                     $referenceLocations[] = PotentialLocation::maybe(
                         new Location($textDocumentUri, ByteOffset::fromInt($offset))
                     );
-                } else {
-                    $newSource .= $result;
-                    $offset += mb_strlen($result);
+                    continue;
                 }
+                
+                $newSource .= $result;
+                $offset += mb_strlen($result);
             }
         } else {
             throw new \Exception('No selection.');
