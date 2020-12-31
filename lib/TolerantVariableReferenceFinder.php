@@ -3,7 +3,6 @@
 namespace Phpactor\WorseReferenceFinder;
 
 use Generator;
-use InvalidArgumentException;
 use Microsoft\PhpParser\ClassLike;
 use Microsoft\PhpParser\FunctionLike;
 use Microsoft\PhpParser\MissingToken;
@@ -46,7 +45,7 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
         $this->foundDefinition = false;
         $sourceNode = $this->sourceNode($document->__toString());
         $variable = $this->variableNodeFromSource($sourceNode, $byteOffset->toInt());
-        if($variable === null){
+        if ($variable === null) {
             yield from [];
             return;
         }
@@ -125,15 +124,15 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
     {
         /** @var Node $node */
         foreach ($scopeNode->getChildNodes() as $node) {
-            if($node instanceof AnonymousFunctionCreationExpression && !$this->nameExistsInUseClause($name, $node)) {
+            if ($node instanceof AnonymousFunctionCreationExpression && !$this->nameExistsInUseClause($name, $node)) {
                 continue;
-            } 
+            }
             
             if (
                 $this->isPotentialReferenceNode($node)
                 && $name == $this->variableName($node)
             ) {
-                if(!$this->foundDefinition){
+                if (!$this->foundDefinition) {
                     // We artificially skip the first result
                     // assuming it's the definition
                     $this->foundDefinition = true;
