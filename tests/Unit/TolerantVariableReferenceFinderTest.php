@@ -165,6 +165,24 @@ class TolerantVariableReferenceFinderTest extends TestCase
                 ' } }',
             $uri,
         ];
+
+        yield 'skip: static property access' => [
+            '<?php '.
+                'class C1 { static $prop1; function M1() { self::$pro<>p1 = 5; $var4 = self::$prop1; } }',
+            $uri,
+        ];
+
+        yield 'skip: static property declaration' => [
+            '<?php '.
+                'class C1 { static $pr<>op1; function M1() { self::$prop1 = 5; $var4 = self::$prop1; } }',
+            $uri,
+        ];
+
+        yield 'skip: instance property declaration' => [
+            '<?php '.
+                'class C1 { public $pr<>op1; function M1() { $this->prop1 = 5; $var4 = $this->prop1; } }',
+            $uri,
+        ];
     }
 
     private static function offsetsFromSource(string $source, ?string $uri): array

@@ -8,9 +8,11 @@ use Microsoft\PhpParser\FunctionLike;
 use Microsoft\PhpParser\MissingToken;
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\Expression\AnonymousFunctionCreationExpression;
+use Microsoft\PhpParser\Node\Expression\ScopedPropertyAccessExpression;
 use Microsoft\PhpParser\Node\Expression\Variable;
 use Microsoft\PhpParser\Node\MethodDeclaration;
 use Microsoft\PhpParser\Node\Parameter;
+use Microsoft\PhpParser\Node\PropertyDeclaration;
 use Microsoft\PhpParser\Node\SourceFileNode;
 use Microsoft\PhpParser\Node\UseVariableName;
 use Microsoft\PhpParser\Parser;
@@ -70,6 +72,12 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
         ) {
             return null;
         }
+
+        if (
+            ($node instanceof Variable && $node->parent instanceof ScopedPropertyAccessExpression)
+            || ($node instanceof Variable && $node->getFirstAncestor(PropertyDeclaration::class))
+        )
+            return null;
 
         return $node;
     }
@@ -151,7 +159,7 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
     {
         return
             $node instanceof UseVariableName
-            || $node instanceof Variable
+            || ($node instanceof Variable)
             || $node instanceof Parameter
         ;
     }
