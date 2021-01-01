@@ -207,7 +207,7 @@ class TolerantVariableReferenceFinderTest extends TestCase
                         new Location($textDocumentUri, ByteOffset::fromInt($offset))
                     );
                     continue;
-                } 
+                }
                 if ($result == "<mr>") {
                     $referenceLocations[] = PotentialLocation::maybe(
                         new Location($textDocumentUri, ByteOffset::fromInt($offset))

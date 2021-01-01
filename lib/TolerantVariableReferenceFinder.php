@@ -76,8 +76,9 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
         if (
             ($node instanceof Variable && $node->parent instanceof ScopedPropertyAccessExpression)
             || ($node instanceof Variable && $node->getFirstAncestor(PropertyDeclaration::class))
-        )
+        ) {
             return null;
+        }
 
         return $node;
     }
