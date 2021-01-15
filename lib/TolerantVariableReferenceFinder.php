@@ -47,10 +47,8 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
         $this->foundDefinition = false;
         $sourceNode = $this->sourceNode($document->__toString());
         $variable = $this->variableNodeFromSource($sourceNode, $byteOffset->toInt());
-        if ($variable === null) {
-            yield from [];
+        if ($variable === null)
             return;
-        }
 
         $scopeNode = $this->scopeNode($variable);
         yield from $this->find($scopeNode, $this->variableName($variable), $document->uri());
