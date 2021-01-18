@@ -3,6 +3,6 @@ includes:
 parameters:
     level: 7
     inferPrivatePropertyTypeFromConstructor: true
-    checkMissingIterableValueType: false
+    checkMissingIterableValueType: true
     paths:
         - lib
