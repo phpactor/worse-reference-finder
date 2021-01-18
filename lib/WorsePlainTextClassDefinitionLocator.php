@@ -11,6 +11,7 @@ use Phpactor\ReferenceFinder\Exception\CouldNotLocateDefinition;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocument;
 use Phpactor\TextDocument\TextDocumentUri;
+use Phpactor\TextDocument\Util\WordAtOffset;
 use Phpactor\WorseReflection\Core\Exception\NotFound;
 use Phpactor\WorseReflection\Reflector;
 
@@ -66,42 +67,11 @@ class WorsePlainTextClassDefinitionLocator implements DefinitionLocator
         );
     }
 
-    private function extractWord(TextDocument $document, ByteOffset $byteOffset)
+    private function extractWord(TextDocument $document, ByteOffset $byteOffset): string
     {
-        $text = $document->__toString();
-        $offset = $byteOffset->toInt();
-
-        $chars = [];
-        $char = $text[$offset];
-
-        // read back
-        while ($this->charIsNotBreaking($char)) {
-            $chars[] = $char;
-
-            $char = $offset > 0 ? $text[--$offset] : null;
-        };
-
-        $chars = array_reverse($chars);
-
-        $offset = $byteOffset->toInt() + 1;
-        $char = $text[$offset];
-
-        // read forward
-        while ($this->charIsNotBreaking($char)) {
-            $chars[] = $char;
-            $char = $text[++$offset] ?? null;
-        };
-
-        return trim(implode('', $chars));
-    }
-
-    private function charIsNotBreaking(?string $char)
-    {
-        if (null === $char) {
-            return false;
-        }
-
-        return !in_array($char, $this->breakingChars);
+        return (new WordAtOffset(
+            WordAtOffset::SPLIT_QUALIFIED_PHP_NAME
+        ))->__invoke($document->__toString(), $byteOffset->toInt());
     }
 
     private function resolveClassName(TextDocument $document, ByteOffset $byteOffset, string $word): string
