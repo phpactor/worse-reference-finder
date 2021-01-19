@@ -155,7 +155,7 @@ class TolerantVariableReferenceFinderTest extends TestCase
                 'class C1 { public $pr<>op1; function M1() { $this->prop1 = 5; $var4 = $this->prop1; } }',
         ];
     }
-
+    /** @return mixed[] */
     private static function offsetsFromSource(string $source, ?string $uri): array
     {
         $textDocumentUri = $uri !== null ? TextDocumentUri::fromString($uri) : null;
@@ -164,33 +164,33 @@ class TolerantVariableReferenceFinderTest extends TestCase
         $referenceLocations = [];
         $selectionOffset = null;
 
-        if (is_array($results)) {
-            $newSource = "";
-            $offset = 0;
-            foreach ($results as $result) {
-                if ($result == "<>") {
-                    $selectionOffset = $offset;
-                    continue;
-                }
-                
-                if ($result == "<sr>") {
-                    $referenceLocations[] = PotentialLocation::surely(
-                        new Location($textDocumentUri, ByteOffset::fromInt($offset))
-                    );
-                    continue;
-                }
-                if ($result == "<mr>") {
-                    $referenceLocations[] = PotentialLocation::maybe(
-                        new Location($textDocumentUri, ByteOffset::fromInt($offset))
-                    );
-                    continue;
-                }
-                
-                $newSource .= $result;
-                $offset += mb_strlen($result);
+        if (!is_array($results)) {
+            throw new \Exception('No selection.');   
+        }
+
+        $newSource = "";
+        $offset = 0;
+        foreach ($results as $result) {
+            if ($result == "<>") {
+                $selectionOffset = $offset;
+                continue;
             }
-        } else {
-            throw new \Exception('No selection.');
+            
+            if ($result == "<sr>") {
+                $referenceLocations[] = PotentialLocation::surely(
+                    new Location($textDocumentUri, ByteOffset::fromInt($offset))
+                );
+                continue;
+            }
+            if ($result == "<mr>") {
+                $referenceLocations[] = PotentialLocation::maybe(
+                    new Location($textDocumentUri, ByteOffset::fromInt($offset))
+                );
+                continue;
+            }
+            
+            $newSource .= $result;
+            $offset += mb_strlen($result);
         }
         
         return [$newSource, $selectionOffset, $referenceLocations];
