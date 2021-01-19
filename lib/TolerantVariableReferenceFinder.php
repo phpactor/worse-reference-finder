@@ -29,11 +29,6 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
      * @var Parser
      */
     private $parser;
-    /**
-     * @var bool
-     */
-    private $foundDefinition = false;
-
 
     public function __construct(Parser $parser)
     {
@@ -44,7 +39,6 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
      */
     public function findReferences(TextDocument $document, ByteOffset $byteOffset): Generator
     {
-        $this->foundDefinition = false;
         $sourceNode = $this->sourceNode($document->__toString());
         $variable = $this->variableNodeFromSource($sourceNode, $byteOffset->toInt());
         if ($variable === null) {
@@ -52,7 +46,10 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
         }
 
         $scopeNode = $this->scopeNode($variable);
-        yield from $this->find($scopeNode, $this->variableName($variable), $document->uri());
+        $referencesGenerator = $this->find($scopeNode, $this->variableName($variable), $document->uri());
+        $referencesGenerator->next(); // discard the first result as it is the definition
+        if($referencesGenerator->valid())
+            yield from $referencesGenerator;
     }
 
     private function sourceNode(string $source): SourceFileNode
@@ -140,15 +137,9 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
                 $this->isPotentialReferenceNode($node)
                 && $name == $this->variableName($node)
             ) {
-                if (!$this->foundDefinition) {
-                    // We artificially skip the first result
-                    // assuming it's the definition
-                    $this->foundDefinition = true;
-                } else {
-                    yield PotentialLocation::surely(
-                        Location::fromPathAndOffset($uri, $node->getStart())
-                    );
-                }
+                yield PotentialLocation::surely(
+                    Location::fromPathAndOffset($uri, $node->getStart())
+                );
             } else {
                 yield from $this->find($node, $name, $uri);
             }
