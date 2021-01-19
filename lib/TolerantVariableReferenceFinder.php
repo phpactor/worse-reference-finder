@@ -48,8 +48,9 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
         $scopeNode = $this->scopeNode($variable);
         $referencesGenerator = $this->find($scopeNode, $this->variableName($variable), $document->uri());
         $referencesGenerator->next(); // discard the first result as it is the definition
-        if($referencesGenerator->valid())
+        if ($referencesGenerator->valid()) {
             yield from $referencesGenerator;
+        }
     }
 
     private function sourceNode(string $source): SourceFileNode
