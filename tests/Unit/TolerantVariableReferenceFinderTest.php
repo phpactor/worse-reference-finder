@@ -159,13 +159,13 @@ class TolerantVariableReferenceFinderTest extends TestCase
     private static function offsetsFromSource(string $source, ?string $uri): array
     {
         $textDocumentUri = $uri !== null ? TextDocumentUri::fromString($uri) : null;
-        $results = preg_split("/(<>|<sr>|<mr>)/u", $source, null, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+        $results = preg_split("/(<>|<sr>)/u", $source, null, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
         
         $referenceLocations = [];
         $selectionOffset = null;
 
         if (!is_array($results)) {
-            throw new \Exception('No selection.');   
+            throw new \Exception('No selection.');
         }
 
         $newSource = "";
@@ -178,12 +178,6 @@ class TolerantVariableReferenceFinderTest extends TestCase
             
             if ($result == "<sr>") {
                 $referenceLocations[] = PotentialLocation::surely(
-                    new Location($textDocumentUri, ByteOffset::fromInt($offset))
-                );
-                continue;
-            }
-            if ($result == "<mr>") {
-                $referenceLocations[] = PotentialLocation::maybe(
                     new Location($textDocumentUri, ByteOffset::fromInt($offset))
                 );
                 continue;
