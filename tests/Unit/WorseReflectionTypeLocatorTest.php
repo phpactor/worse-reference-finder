@@ -15,28 +15,28 @@ class WorseReflectionTypeLocatorTest extends IntegrationTestCase
     {
         $location = $this->locate(
             <<<'EOT'
-// File: One.php
-// <?php class One {}
-// File: Two.php
-// <?php class Two {}
-EOT
+                // File: One.php
+                // <?php class One {}
+                // File: Two.php
+                // <?php class Two {}
+                EOT
         ,
             <<<'EOT'
-<?php
+                <?php
 
-class Foo
-{
-    /** 
-     * @var One
-     */
-    private $one;
+                class Foo
+                {
+                    /** 
+                     * @var One
+                     */
+                    private $one;
 
-    public function bar()
-    {
-        $this->o<>ne;
-    }
-}
-EOT
+                    public function bar()
+                    {
+                        $this->o<>ne;
+                    }
+                }
+                EOT
         );
         self::assertEquals($this->workspace->path('One.php'), $location->uri()->path());
         self::assertEquals(9, $location->offset()->toInt());
@@ -46,28 +46,28 @@ EOT
     {
         $location = $this->locate(
             <<<'EOT'
-// File: One.php
-// <?php class One {}
-// File: Two.php
-// <?php class Two {}
-EOT
+                // File: One.php
+                // <?php class One {}
+                // File: Two.php
+                // <?php class Two {}
+                EOT
         ,
             <<<'EOT'
-<?php
+                <?php
 
-class Foo
-{
-    /** 
-     * @var One[]
-     */
-    private $one;
+                class Foo
+                {
+                    /** 
+                     * @var One[]
+                     */
+                    private $one;
 
-    public function bar()
-    {
-        $this->o<>ne;
-    }
-}
-EOT
+                    public function bar()
+                    {
+                        $this->o<>ne;
+                    }
+                }
+                EOT
         );
         self::assertEquals($this->workspace->path('One.php'), $location->uri()->path());
         self::assertEquals(9, $location->offset()->toInt());
@@ -77,28 +77,28 @@ EOT
     {
         $location = $this->locate(
             <<<'EOT'
-// File: One.php
-// <?php interface One {}
-// File: Two.php
-// <?php class Two {}
-EOT
+                // File: One.php
+                // <?php interface One {}
+                // File: Two.php
+                // <?php class Two {}
+                EOT
         ,
             <<<'EOT'
-<?php
+                <?php
 
-class Foo
-{
-    /** 
-     * @var One
-     */
-    private $one;
+                class Foo
+                {
+                    /** 
+                     * @var One
+                     */
+                    private $one;
 
-    public function bar()
-    {
-        $this->o<>ne;
-    }
-}
-EOT
+                    public function bar()
+                    {
+                        $this->o<>ne;
+                    }
+                }
+                EOT
         );
         self::assertEquals($this->workspace->path('One.php'), $location->uri()->path());
         self::assertEquals(9, $location->offset()->toInt());

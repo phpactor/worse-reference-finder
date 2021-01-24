@@ -15,7 +15,7 @@ class WorseReflectionDefinitionLocatorTest extends DefinitionLocatorTestCase
     const EXAMPLE_SOURCE = 'foobar';
     const EXAMPLE_OFFSET = 1234;
 
-    public function testExceptionOnNonPhpFile()
+    public function testExceptionOnNonPhpFile(): void
     {
         $this->expectException(CouldNotLocateDefinition::class);
         $this->expectExceptionMessage('PHP');
@@ -26,7 +26,7 @@ class WorseReflectionDefinitionLocatorTest extends DefinitionLocatorTestCase
         );
     }
 
-    public function testExceptionOnUnresolvableSymbol()
+    public function testExceptionOnUnresolvableSymbol(): void
     {
         $this->expectException(CouldNotLocateDefinition::class);
         $this->expectExceptionMessage('Do not know how');
@@ -39,7 +39,7 @@ class WorseReflectionDefinitionLocatorTest extends DefinitionLocatorTestCase
         );
     }
 
-    public function testExceptionWhenNoContainingClass()
+    public function testExceptionWhenNoContainingClass(): void
     {
         $this->expectException(CouldNotLocateDefinition::class);
         $this->expectExceptionMessage('Containing class');
@@ -52,130 +52,130 @@ class WorseReflectionDefinitionLocatorTest extends DefinitionLocatorTestCase
         );
     }
 
-    public function testExceptionWhenContainingClassNotFound()
+    public function testExceptionWhenContainingClassNotFound(): void
     {
         $this->markTestSkipped('Cannot reproduce');
     }
 
-    public function testExceptionWhrenClassNoPath()
+    public function testExceptionWhrenClassNoPath(): void
     {
         $this->markTestSkipped('Cannot reproduce');
     }
 
-    public function testExceptionWhenFunctionHasNoSourceCode()
+    public function testExceptionWhenFunctionHasNoSourceCode(): void
     {
         $this->markTestSkipped('Cannot reproduce');
     }
 
-    public function testLocatesFunction()
+    public function testLocatesFunction(): void
     {
         $location = $this->locate(<<<'EOT'
-// File: file1.php
-<?php
+            // File: file1.php
+            <?php
 
-function foobar()
-{
-}
-EOT
+            function foobar()
+            {
+            }
+            EOT
         , '<?php foob<>ar();');
 
         $this->assertEquals($this->workspace->path('file1.php'), (string) $location->uri()->path());
         $this->assertEquals(7, $location->offset()->toInt());
     }
 
-    public function testExceptionIfMethodNotFound()
+    public function testExceptionIfMethodNotFound(): void
     {
         $this->expectException(CouldNotLocateDefinition::class);
         $this->expectExceptionMessage('Class "Foobar" has no property');
         $location = $this->locate(<<<'EOT'
-// File: Foobar.php
-<?php 
+            // File: Foobar.php
+            <?php 
 
-class Foobar 
-{
-}
-EOT
+            class Foobar 
+            {
+            }
+            EOT
         , '<?php $foo = new Foobar(); $foo->b<>ar;');
     }
 
-    public function testLocatesToMethod()
+    public function testLocatesToMethod(): void
     {
         $location = $this->locate(<<<'EOT'
-// File: Foobar.php
-<?php class Foobar { public function bar() {} }
-EOT
+            // File: Foobar.php
+            <?php class Foobar { public function bar() {} }
+            EOT
         , '<?php $foo = new Foobar(); $foo->b<>ar();');
 
         $this->assertEquals($this->workspace->path('Foobar.php'), (string) $location->uri()->path());
         $this->assertEquals(21, $location->offset()->toInt());
     }
 
-    public function testLocatesConstant()
+    public function testLocatesConstant(): void
     {
         $location = $this->locate(<<<'EOT'
-// File: Foobar.php
-<?php class Foobar { const FOOBAR = 'baz'; }
-EOT
+            // File: Foobar.php
+            <?php class Foobar { const FOOBAR = 'baz'; }
+            EOT
         , '<?php Foobar::FOO<>BAR;');
 
         $this->assertEquals($this->workspace->path('Foobar.php'), (string) $location->uri()->path());
         $this->assertEquals(21, $location->offset()->toInt());
     }
 
-    public function testLocatesProperty()
+    public function testLocatesProperty(): void
     {
         $location = $this->locate(<<<'EOT'
-// File: Foobar.php
-<?php class Foobar { public $foobar; }
-EOT
+            // File: Foobar.php
+            <?php class Foobar { public $foobar; }
+            EOT
         , '<?php $foo = new Foobar(); $foo->foo<>bar;');
 
         $this->assertEquals($this->workspace->path('Foobar.php'), $location->uri()->path());
         $this->assertEquals(21, $location->offset()->toInt());
     }
 
-    public function testLocatesLocalVariable()
+    public function testLocatesLocalVariable(): void
     {
         $location = $this->locate(<<<'EOT'
-// File: Foobar.php
-<?php class Foobar { public $foobar; }
-EOT
+            // File: Foobar.php
+            <?php class Foobar { public $foobar; }
+            EOT
         , '<?php $foo = new Foobar(); $f<>oo->foobar;');
 
         $this->assertEquals($this->workspace->path('somefile.php'), $location->uri()->path());
         $this->assertEquals(6, $location->offset()->toInt());
     }
 
-    public function testExceptionIfVariableIsMethodArgument()
+    public function testExceptionIfVariableIsMethodArgument(): void
     {
         $this->expectException(CouldNotLocateDefinition::class);
         $this->expectExceptionMessage('Could not find variable "bar" in scope');
         $location = $this->locate(<<<'EOT'
-// File: Foobar.php
-<?php class Foobar { public $foobar; }
-EOT
+            // File: Foobar.php
+            <?php class Foobar { public $foobar; }
+            EOT
         , '<?php class Foo { public method bar($bar) { $b<>ar->baz(); } }');
     }
 
-    public function testExceptionIfVariableNotDefined()
+    public function testExceptionIfVariableNotDefined(): void
     {
         $this->expectException(CouldNotLocateDefinition::class);
         $this->expectExceptionMessage('Could not find variable "bar" in scope');
         $location = $this->locate(<<<'EOT'
-// File: Foobar.php
-<?php class Foobar { public $foobar; }
-EOT
+            // File: Foobar.php
+            <?php class Foobar { public $foobar; }
+            EOT
         , '<?php $foo = new Foobar(); $b<>ar->foobar;');
     }
 
-    public function testExceptionIfPropertyIsInterface()
+    public function testExceptionIfPropertyIsInterface(): void
     {
         $this->expectException(CouldNotLocateDefinition::class);
         $this->expectExceptionMessage('is an interface');
         $location = $this->locate(<<<'EOT'
-// File: Foobar.php
-<?php interface Foobar { public $foobar; }
-EOT
+            // File: Foobar.php
+            <?php interface Foobar { public $foobar; }
+            EOT
         , '<?php $foo = new Foobar(); $foo->foo<>bar;');
 
         $this->assertEquals($this->workspace->path('Foobar.php'), $location->uri()->path());

@@ -12,20 +12,20 @@ class WorsePlainTextDefinitionLocatorTest extends DefinitionLocatorTestCase
     /**
      * @dataProvider provideGotoWord
      */
-    public function testGotoWord(string $text, string $expectedPath)
+    public function testGotoWord(string $text, string $expectedPath): void
     {
         $location = $this->locate(<<<'EOT'
-// File: Foobar.php
-<?php class Foobar {}
-// File: Barfoo.php
-<?php namespace Barfoo { class Barfoo {} }
-EOT
+            // File: Foobar.php
+            <?php class Foobar {}
+            // File: Barfoo.php
+            <?php namespace Barfoo { class Barfoo {} }
+            EOT
         , $text);
 
         $this->assertEquals($this->workspace->path($expectedPath), $location->uri()->path());
     }
 
-    public function testExceptionIfCannotFindClass()
+    public function testExceptionIfCannotFindClass(): void
     {
         $this->expectException(CouldNotLocateDefinition::class);
         $this->expectExceptionMessage('Word "is" could not be resolved to a class');
@@ -41,33 +41,33 @@ EOT
         yield 'array access' => [ '[Foob<>ar::class]', 'Foobar.php' ];
         yield 'solid block of text' => [ 'Foob<>ar', 'Foobar.php' ];
         yield 'imported class 1' => [ <<<'EOT'
-<?php 
-namespace Bar {
+            <?php 
+            namespace Bar {
 
-use Barfoo\Barfoo;
+            use Barfoo\Barfoo;
 
-    class Ha {
-    /** @var Ba<>rfoo */
-    private $hello;
-    }
-}
-EOT
+                class Ha {
+                /** @var Ba<>rfoo */
+                private $hello;
+                }
+            }
+            EOT
         , 'Barfoo.php' ];
         yield 'imported class 2' => [ <<<'EOT'
-<?php 
+            <?php 
 
-use Barfoo\Barfoo;
+            use Barfoo\Barfoo;
 
-/** @var Ba<>rfoo */
-EOT
+            /** @var Ba<>rfoo */
+            EOT
         , 'Barfoo.php' ];
         yield 'relative class' => [ <<<'EOT'
-<?php 
+            <?php 
 
-namespace Barfoo;
+            namespace Barfoo;
 
-/** @var Ba<>rfoo */
-EOT
+            /** @var Ba<>rfoo */
+            EOT
         , 'Barfoo.php' ];
     }
 
