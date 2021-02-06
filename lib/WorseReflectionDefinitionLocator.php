@@ -45,10 +45,14 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
             $sourceCode = SourceCode::fromString($document->__toString());
         }
 
-        $offset = $this->reflector->reflectOffset(
-            $sourceCode,
-            $byteOffset->toInt()
-        );
+        try {
+            $offset = $this->reflector->reflectOffset(
+                $sourceCode,
+                $byteOffset->toInt()
+            );
+        } catch (NotFound $notFound) {
+            throw new CouldNotLocateDefinition($notFound->getMessage(), 0, $notFound);
+        }
 
         return $this->gotoDefinition($document, $offset);
     }
