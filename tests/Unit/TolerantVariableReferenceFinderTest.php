@@ -12,6 +12,7 @@ use Phpactor\TextDocument\TextDocumentBuilder;
 use Phpactor\TextDocument\TextDocumentUri;
 use Phpactor\WorseReferenceFinder\TolerantVariableReferenceFinder;
 use function iterator_to_array;
+use Exception;
 
 class TolerantVariableReferenceFinderTest extends TestCase
 {
@@ -20,11 +21,11 @@ class TolerantVariableReferenceFinderTest extends TestCase
     */
     public function testReferences(string $source): void
     {
-        $uri = "file:///root/testDoc";
+        $uri = 'file:///root/testDoc';
         list($source, $selectionOffset, $expectedReferences) = $this->offsetsFromSource($source, $uri);
         $document = TextDocumentBuilder::create($source)
             ->uri($uri)
-            ->language("php")
+            ->language('php')
             ->build();
         
         $finder = new TolerantVariableReferenceFinder(new Parser());
@@ -159,24 +160,24 @@ class TolerantVariableReferenceFinderTest extends TestCase
     private static function offsetsFromSource(string $source, ?string $uri): array
     {
         $textDocumentUri = $uri !== null ? TextDocumentUri::fromString($uri) : null;
-        $results = preg_split("/(<>|<sr>)/u", $source, null, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+        $results = preg_split('/(<>|<sr>)/u', $source, null, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
         
         $referenceLocations = [];
         $selectionOffset = null;
 
         if (!is_array($results)) {
-            throw new \Exception('No selection.');
+            throw new Exception('No selection.');
         }
 
-        $newSource = "";
+        $newSource = '';
         $offset = 0;
         foreach ($results as $result) {
-            if ($result == "<>") {
+            if ($result == '<>') {
                 $selectionOffset = $offset;
                 continue;
             }
             
-            if ($result == "<sr>") {
+            if ($result == '<sr>') {
                 $referenceLocations[] = PotentialLocation::surely(
                     new Location($textDocumentUri, ByteOffset::fromInt($offset))
                 );

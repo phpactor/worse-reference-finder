@@ -22,6 +22,7 @@ use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\Location;
 use Phpactor\TextDocument\TextDocument;
 use function assert;
+use Exception;
 
 class TolerantVariableReferenceFinder implements ReferenceFinder
 {
@@ -96,7 +97,7 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
         }
 
         if (null === $scopeNode) {
-            throw new \Exception(
+            throw new Exception(
                 'Could not determine scope node, this should not happen as ' .
                 'there should always be a SourceFileNode.'
             );
