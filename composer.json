@@ -12,7 +12,7 @@
         "phpactor/name-specification": "^0.1",
         "phpactor/reference-finder": "~0.1.5",
         "phpactor/source-code-filesystem": "~0.1.6",
-        "phpactor/worse-reflection": "~0.4.4",
+        "phpactor/worse-reflection": "^0.4.5",
         "phpactor/text-document": "^1.2.3",
         "php": "^7.3 || ^8.0"
     },
