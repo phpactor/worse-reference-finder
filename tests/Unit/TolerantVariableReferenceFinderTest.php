@@ -31,9 +31,6 @@ class TolerantVariableReferenceFinderTest extends TestCase
         $finder = new TolerantVariableReferenceFinder(new Parser());
         $actualReferences = iterator_to_array($finder->findReferences($document, ByteOffset::fromInt($selectionOffset)), false);
 
-        // shift off the definition
-        array_shift($actualReferences);
-
         $this->assertEquals($expectedReferences, $actualReferences);
     }
 

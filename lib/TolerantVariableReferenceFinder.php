@@ -31,9 +31,15 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
      */
     private $parser;
 
-    public function __construct(Parser $parser)
+    /**
+     * @var bool
+     */
+    private $includeDefinition;
+
+    public function __construct(Parser $parser, bool $includeDefinition = false)
     {
         $this->parser = $parser;
+        $this->includeDefinition = $includeDefinition;
     }
     /**
      * {@inheritDoc}
@@ -47,7 +53,15 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
         }
 
         $scopeNode = $this->scopeNode($variable);
-        yield from $this->find($scopeNode, $this->variableName($variable), $document->uri());
+        $referencesGenerator = $this->find($scopeNode, $this->variableName($variable), $document->uri());
+
+        if (false === $this->includeDefinition) {
+            $referencesGenerator->next();
+        }
+
+        if ($referencesGenerator->valid()) {
+            yield from $referencesGenerator;
+        }
     }
 
     private function sourceNode(string $source): SourceFileNode
