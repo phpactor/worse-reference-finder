@@ -134,40 +134,6 @@ class WorseReflectionDefinitionLocatorTest extends DefinitionLocatorTestCase
         $this->assertEquals(21, $location->offset()->toInt());
     }
 
-    public function testLocatesLocalVariable(): void
-    {
-        $location = $this->locate(<<<'EOT'
-            // File: Foobar.php
-            <?php class Foobar { public $foobar; }
-            EOT
-        , '<?php $foo = new Foobar(); $f<>oo->foobar;');
-
-        $this->assertEquals($this->workspace->path('somefile.php'), $location->uri()->path());
-        $this->assertEquals(6, $location->offset()->toInt());
-    }
-
-    public function testExceptionIfVariableIsMethodArgument(): void
-    {
-        $this->expectException(CouldNotLocateDefinition::class);
-        $this->expectExceptionMessage('Could not find variable "bar" in scope');
-        $location = $this->locate(<<<'EOT'
-            // File: Foobar.php
-            <?php class Foobar { public $foobar; }
-            EOT
-        , '<?php class Foo { public method bar($bar) { $b<>ar->baz(); } }');
-    }
-
-    public function testExceptionIfVariableNotDefined(): void
-    {
-        $this->expectException(CouldNotLocateDefinition::class);
-        $this->expectExceptionMessage('Could not find variable "bar" in scope');
-        $location = $this->locate(<<<'EOT'
-            // File: Foobar.php
-            <?php class Foobar { public $foobar; }
-            EOT
-        , '<?php $foo = new Foobar(); $b<>ar->foobar;');
-    }
-
     public function testExceptionIfPropertyIsInterface(): void
     {
         $this->expectException(CouldNotLocateDefinition::class);

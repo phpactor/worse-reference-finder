@@ -69,8 +69,6 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
                 return $this->gotoClass($symbolContext);
             case Symbol::FUNCTION:
                 return $this->gotoFunction($symbolContext);
-            case Symbol::VARIABLE:
-                return $this->gotoVariable($document, $offset);
         }
 
         throw new CouldNotLocateDefinition(sprintf(
