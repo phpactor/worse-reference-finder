@@ -19,7 +19,7 @@ class TolerantVariableReferenceFinderTest extends TestCase
     /**
     * @dataProvider provideReferences
     */
-    public function testReferences(string $source): void
+    public function testReferences(string $source, bool $includeDefinition = false): void
     {
         $uri = 'file:///root/testDoc';
         list($source, $selectionOffset, $expectedReferences) = $this->offsetsFromSource($source, $uri);
@@ -28,16 +28,17 @@ class TolerantVariableReferenceFinderTest extends TestCase
             ->language('php')
             ->build();
         
-        $finder = new TolerantVariableReferenceFinder(new Parser());
+        $finder = new TolerantVariableReferenceFinder(new Parser(), $includeDefinition);
         $actualReferences = iterator_to_array($finder->findReferences($document, ByteOffset::fromInt($selectionOffset)), false);
 
         $this->assertEquals($expectedReferences, $actualReferences);
     }
 
+    /**
+     * @return Generator<mixed>
+     */
     public function provideReferences(): Generator
     {
-        // Remember the definition is not returned as a reference!
-
         yield 'not on variable' => [
             '<?php $var1 = <>5;'
         ];
@@ -52,6 +53,10 @@ class TolerantVariableReferenceFinderTest extends TestCase
 
         yield 'function argument' => [
             '<?php $v<>ar1 = 5; func(<sr>$var1);',
+        ];
+
+        yield 'function argument with type' => [
+            '<?php $v<>ar1 = 5; func(string <sr>$var1);',
         ];
 
         yield 'global statement' => [
@@ -112,6 +117,11 @@ class TolerantVariableReferenceFinderTest extends TestCase
 
         yield 'scope: inside class method: select argument' => [
             '<?php class C1 { function M1($va<>r1) { <sr>$var1 = 5; $var2 = <sr>$var1 + 10; } }',
+        ];
+
+        yield 'scope: inside class method: select argument definition' => [
+            '<?php class C1 { function M1(string <sr>$va<>r1) { <sr>$var1 = 5; $var2 = <sr>$var1 + 10; } }',
+            true
         ];
 
         yield 'scope: inside class method: inside anonumous function + use, click inside' => [

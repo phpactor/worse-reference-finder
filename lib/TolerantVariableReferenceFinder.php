@@ -16,6 +16,7 @@ use Microsoft\PhpParser\Node\PropertyDeclaration;
 use Microsoft\PhpParser\Node\SourceFileNode;
 use Microsoft\PhpParser\Node\UseVariableName;
 use Microsoft\PhpParser\Parser;
+use Microsoft\PhpParser\Token;
 use Phpactor\ReferenceFinder\PotentialLocation;
 use Phpactor\ReferenceFinder\ReferenceFinder;
 use Phpactor\TextDocument\ByteOffset;
@@ -145,16 +146,32 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
                 continue;
             }
             
-            if (
-                $this->isPotentialReferenceNode($node)
-                && $name == $this->variableName($node)
-            ) {
+            if ($node instanceof Variable && $name == $node->getName()) {
                 yield PotentialLocation::surely(
                     Location::fromPathAndOffset($uri, $node->getStart())
                 );
-            } else {
-                yield from $this->find($node, $name, $uri);
+                continue;
             }
+
+            if ($node instanceof Parameter && $name == $node->getName()) {
+                $variableName = $node->variableName;
+                if (!$variableName instanceof Token) {
+                    continue;
+                }
+                yield PotentialLocation::surely(
+                    Location::fromPathAndOffset($uri, $variableName->start)
+                );
+                continue;
+            }
+
+            if ($node instanceof UseVariableName && $name == $node->getName()) {
+                yield PotentialLocation::surely(
+                    Location::fromPathAndOffset($uri, $node->getStart())
+                );
+                continue;
+            }
+
+            yield from $this->find($node, $name, $uri);
         }
     }
 

@@ -28,9 +28,9 @@ class TolerantVariableDefintionLocatorTest extends DefinitionLocatorTestCase
             // File: Foobar.php
             <?php class Foobar { public $foobar; }
             EOT
-        , '<?php class Foo { public function bar($bar) { $b<>ar->baz(); } }');
+        , '<?php class Foo { public function bar(string $bar) { $b<>ar->baz(); } }');
         $this->assertEquals($this->workspace->path('somefile.php'), $location->uri()->path());
-        $this->assertEquals(38, $location->offset()->toInt());
+        $this->assertEquals(45, $location->offset()->toInt());
     }
 
     public function testGotoFirstIfVariableNotDefined(): void
