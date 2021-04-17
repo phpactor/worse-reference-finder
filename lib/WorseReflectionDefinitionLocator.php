@@ -8,6 +8,7 @@ use Phpactor\ReferenceFinder\Exception\CouldNotLocateDefinition;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocument;
 use Phpactor\TextDocument\TextDocumentUri;
+use Phpactor\WorseReflection\Core\Cache;
 use Phpactor\WorseReflection\Core\Exception\NotFound;
 use Phpactor\WorseReflection\Core\Inference\Symbol;
 use Phpactor\WorseReflection\Core\Inference\SymbolContext;
@@ -25,9 +26,15 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
      */
     private $reflector;
 
-    public function __construct(Reflector $reflector)
+    /**
+     * @var Cache
+     */
+    private $cache;
+
+    public function __construct(Reflector $reflector, Cache $cache)
     {
         $this->reflector = $reflector;
+        $this->cache = $cache;
     }
 
     /**
@@ -38,6 +45,8 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
         if (false === $document->language()->isPhp()) {
             throw new CouldNotLocateDefinition('I only work with PHP files');
         }
+
+        $this->cache->purge();
 
         if ($uri = $document->uri()) {
             $sourceCode = SourceCode::fromPathAndString($uri->__toString(), $document->__toString());

@@ -9,6 +9,7 @@ use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocumentBuilder;
 use Phpactor\WorseReferenceFinder\Tests\DefinitionLocatorTestCase;
 use Phpactor\WorseReferenceFinder\WorseReflectionDefinitionLocator;
+use Phpactor\WorseReflection\Core\Cache\NullCache;
 
 class WorseReflectionDefinitionLocatorTest extends DefinitionLocatorTestCase
 {
@@ -150,6 +151,6 @@ class WorseReflectionDefinitionLocatorTest extends DefinitionLocatorTestCase
 
     protected function locator(): DefinitionLocator
     {
-        return new WorseReflectionDefinitionLocator($this->reflector());
+        return new WorseReflectionDefinitionLocator($this->reflector(), new NullCache());
     }
 }
