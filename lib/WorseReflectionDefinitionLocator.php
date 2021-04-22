@@ -115,7 +115,7 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
 
     private function gotoFunction(SymbolContext $symbolContext): DefinitionLocation
     {
-        $functionName = $symbolContext->name();
+        $functionName = $symbolContext->symbol()->name();
 
         try {
             $function = $this->reflector->reflectFunction($functionName);

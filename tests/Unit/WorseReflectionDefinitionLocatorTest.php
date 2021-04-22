@@ -84,6 +84,20 @@ class WorseReflectionDefinitionLocatorTest extends DefinitionLocatorTestCase
         $this->assertEquals(7, $location->offset()->toInt());
     }
 
+    public function testExceptionForFunctionWithNoDefinition(): void
+    {
+        $this->expectException(CouldNotLocateDefinition::class);
+        $location = $this->locate(<<<'EOT'
+            // File: file1.php
+            <?php
+
+            function barfoo()
+            {
+            }
+            EOT
+        , '<?php foob<>ar();');
+    }
+
     public function testExceptionIfMethodNotFound(): void
     {
         $this->expectException(CouldNotLocateDefinition::class);
