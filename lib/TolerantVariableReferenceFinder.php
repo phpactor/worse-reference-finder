@@ -96,7 +96,7 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
 
     private function scopeNode(Node $variable): Node
     {
-        if($variable instanceof CatchClause) {
+        if ($variable instanceof CatchClause) {
             return $variable;
         }
 
@@ -207,8 +207,9 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
             return $variable->getName();
         }
 
-        if($variable instanceof CatchClause && $variable->variableName)
+        if ($variable instanceof CatchClause && $variable->variableName) {
             return substr((string)$variable->variableName->getText($variable->getFileContents()), 1);
+        }
         
         return null;
     }
