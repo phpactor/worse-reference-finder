@@ -7,6 +7,7 @@ use Microsoft\PhpParser\ClassLike;
 use Microsoft\PhpParser\FunctionLike;
 use Microsoft\PhpParser\MissingToken;
 use Microsoft\PhpParser\Node;
+use Microsoft\PhpParser\Node\CatchClause;
 use Microsoft\PhpParser\Node\Expression\AnonymousFunctionCreationExpression;
 use Microsoft\PhpParser\Node\Expression\ScopedPropertyAccessExpression;
 use Microsoft\PhpParser\Node\Expression\Variable;
@@ -52,7 +53,7 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
         if ($variable === null) {
             return;
         }
-
+        
         $scopeNode = $this->scopeNode($variable);
         $referencesGenerator = $this->find($scopeNode, $this->variableName($variable), $document->uri());
 
@@ -77,7 +78,8 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
         if (
             false === $node instanceof Variable &&
             false === $node instanceof UseVariableName &&
-            false === $node instanceof Parameter
+            false === $node instanceof Parameter &&
+            false === $node instanceof CatchClause
         ) {
             return null;
         }
@@ -94,17 +96,21 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
 
     private function scopeNode(Node $variable): Node
     {
+        if($variable instanceof CatchClause) {
+            return $variable;
+        }
+
         $name = $this->variableName($variable);
         if ($variable instanceof UseVariableName) {
             $variable = $variable->getFirstAncestor(MethodDeclaration::class) ?: $variable;
         }
 
-        $scopeNode = $variable->getFirstAncestor(FunctionLike::class, ClassLike::class, SourceFileNode::class);
+        $scopeNode = $variable->getFirstAncestor(FunctionLike::class, ClassLike::class, SourceFileNode::class, CatchClause::class);
         while (
             $scopeNode instanceof AnonymousFunctionCreationExpression &&
             $this->nameExistsInUseClause($name, $scopeNode)
         ) {
-            $scopeNode = $scopeNode->getFirstAncestor(FunctionLike::class, ClassLike::class, SourceFileNode::class);
+            $scopeNode = $scopeNode->getFirstAncestor(FunctionLike::class, ClassLike::class, SourceFileNode::class, CatchClause::class);
         }
 
         if (null === $scopeNode) {
@@ -140,6 +146,12 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
      */
     private function find(Node $scopeNode, string $name, string $uri): Generator
     {
+        if ($scopeNode instanceof CatchClause && $scopeNode->variableName instanceof Token && $name == substr((string)$scopeNode->variableName->getText($scopeNode->getFileContents()), 1)) {
+            yield PotentialLocation::surely(
+                Location::fromPathAndOffset($uri, $scopeNode->variableName->start)
+            );
+        }
+
         /** @var Node $node */
         foreach ($scopeNode->getChildNodes() as $node) {
             if ($node instanceof AnonymousFunctionCreationExpression && !$this->nameExistsInUseClause($name, $node)) {
@@ -179,8 +191,9 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
     {
         return
             $node instanceof UseVariableName
-            || ($node instanceof Variable)
+            || $node instanceof Variable
             || $node instanceof Parameter
+            || $node instanceof CatchClause
         ;
     }
 
@@ -193,6 +206,9 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
         ) {
             return $variable->getName();
         }
+
+        if($variable instanceof CatchClause && $variable->variableName)
+            return substr((string)$variable->variableName->getText($variable->getFileContents()), 1);
         
         return null;
     }

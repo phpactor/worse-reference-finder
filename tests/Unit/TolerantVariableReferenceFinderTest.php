@@ -87,6 +87,16 @@ class TolerantVariableReferenceFinderTest extends TestCase
             '<?php $v<>ar1 = 5; $str = "Text {<sr>$var1} more text";',
         ];
 
+        yield 'exception in a catch clause' => [
+            '<?php try { $a = 5; } catch (Exception <sr>$<>e) { echo <sr>$e->getMessage(); }',
+            true
+        ];
+
+        yield 'scope: exception in a catch clause (skip other with same names)' => [
+            '<?php try { $b = 4; } catch (Exception $e) { echo $e->getMessage(); }  try { $a = 5; } catch (Exception <sr>$e) { echo <sr>$<>e->getMessage(); }',
+            true
+        ];
+
         yield 'scope: anonymous function: argument' => [
             '<?php $v<>ar1 = 5; $func = function($var1) { };',
         ];
