@@ -4,6 +4,8 @@ namespace Phpactor\WorseReferenceFinder;
 
 use Exception;
 use Microsoft\PhpParser\Node;
+use Microsoft\PhpParser\Node\NamespaceUseClause;
+use Microsoft\PhpParser\Node\SourceFileNode;
 use Microsoft\PhpParser\Parser;
 use Phpactor\ReferenceFinder\DefinitionLocation;
 use Phpactor\ReferenceFinder\DefinitionLocator;
@@ -83,6 +85,10 @@ class WorsePlainTextClassDefinitionLocator implements DefinitionLocator
         $node = $this->parser->parseSourceFile(
             $document->__toString()
         )->getDescendantNodeAtPosition($byteOffset->toInt());
+
+        if ($node instanceof SourceFileNode) {
+            $node = $node->getFirstDescendantNode(NamespaceUseClause::class) ?? $node;
+        }
 
         $imports = $this->resolveImportTable($node);
 
