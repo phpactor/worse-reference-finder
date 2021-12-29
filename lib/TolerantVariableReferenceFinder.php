@@ -148,7 +148,7 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
             
             if ($node instanceof Variable && $name == $node->getName()) {
                 yield PotentialLocation::surely(
-                    Location::fromPathAndOffset($uri, $node->getStart())
+                    Location::fromPathAndOffset($uri, $node->getStartPosition())
                 );
                 continue;
             }
@@ -166,7 +166,7 @@ class TolerantVariableReferenceFinder implements ReferenceFinder
 
             if ($node instanceof UseVariableName && $name == $node->getName()) {
                 yield PotentialLocation::surely(
-                    Location::fromPathAndOffset($uri, $node->getStart())
+                    Location::fromPathAndOffset($uri, $node->getStartPosition())
                 );
                 continue;
             }
