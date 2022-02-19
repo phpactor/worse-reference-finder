@@ -149,6 +149,21 @@ class WorseReflectionDefinitionLocatorTest extends DefinitionLocatorTestCase
         $this->assertEquals(21, $location->offset()->toInt());
     }
 
+    public function testLocatesCase(): void
+    {
+        if (!defined('T_ENUM')) {
+            $this->markTestSkipped('PHP8.1');
+        }
+        $location = $this->locate(<<<'EOT'
+            // File: FoobarEnum.php
+            <?php enum FoobarEnum { case BAR; }
+            EOT
+        , '<?php FoobarEnum::B<>AR;');
+
+        $this->assertEquals($this->workspace->path('FoobarEnum.php'), $location->uri()->path());
+        $this->assertEquals(24, $location->offset()->toInt());
+    }
+
     public function testExceptionIfPropertyIsInterface(): void
     {
         $this->expectException(CouldNotLocateDefinition::class);

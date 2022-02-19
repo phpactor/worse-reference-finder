@@ -13,6 +13,7 @@ use Phpactor\WorseReflection\Core\Exception\NotFound;
 use Phpactor\WorseReflection\Core\Inference\Symbol;
 use Phpactor\WorseReflection\Core\Inference\SymbolContext;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionClass;
+use Phpactor\WorseReflection\Core\Reflection\ReflectionEnum;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionInterface;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionOffset;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionTrait;
@@ -73,6 +74,7 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
             case Symbol::METHOD:
             case Symbol::PROPERTY:
             case Symbol::CONSTANT:
+            case Symbol::CASE:
                 return $this->gotoMember($symbolContext);
             case Symbol::CLASS_:
                 return $this->gotoClass($symbolContext);
@@ -171,6 +173,10 @@ class WorseReflectionDefinitionLocator implements DefinitionLocator
                 $members = $containingClass->methods();
                 break;
             case Symbol::CONSTANT:
+                if ($containingClass instanceof ReflectionEnum) {
+                    $members = $containingClass->cases();
+                    break;
+                }
                 assert($containingClass instanceof ReflectionClass || $containingClass instanceof ReflectionInterface);
                 $members = $containingClass->constants();
                 break;
